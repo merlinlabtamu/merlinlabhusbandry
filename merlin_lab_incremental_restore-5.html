@@ -1,0 +1,3046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merlin Lab - Monarch Development Tracking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --monarch-primary: #E67E22;      /* Warm monarch orange */
+            --monarch-secondary: #27AE60;     /* Forest green */
+            --monarch-accent: #F39C12;       /* Golden orange */
+            --monarch-dark: #2C3E50;         /* Deep blue-gray */
+            --monarch-light: #ECF0F1;        /* Light gray */
+            --monarch-cream: #FDF6E3;        /* Warm cream */
+            --monarch-sage: #95A5A6;         /* Sage gray */
+            
+            /* Status colors */
+            --success-green: #27AE60;        /* Success green */
+            --warning-amber: #F39C12;        /* Warning amber */
+            --danger-red: #E74C3C;           /* Danger red */
+            --info-blue: #3498DB;            /* Info blue */
+            
+            /* Background colors */
+            --bg-primary: #FDFEFE;           /* Pure white */
+            --bg-secondary: #F8F9FA;         /* Very light gray */
+            --bg-accent: #FDF6E3;            /* Warm cream */
+            
+            /* Text colors */
+            --text-primary: #2C3E50;         /* Dark blue-gray */
+            --text-secondary: #7F8C8D;       /* Medium gray */
+            --text-light: #BDC3C7;           /* Light gray */
+            
+            /* Border and shadow */
+            --border-light: #E8F5E8;         /* Very light green */
+            --shadow-soft: rgba(39, 174, 96, 0.1);  /* Soft green shadow */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6B7280, #4B5563);
+        }
+
+        .login-form {
+            background: var(--bg-primary);
+            padding: 2rem;
+            margin: auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+            border: 3px solid #6B7280;
+        }
+
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #1F2937;
+            text-align: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .error {
+            background: var(--danger-red);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #6B7280;
+            border-radius: 8px;
+            background: var(--bg-accent);
+            color: var(--text-primary);
+            font-family: 'Crimson Text', serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #4B5563;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: 2px solid #6B7280;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            background: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4B5563;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #374151;
+            border-color: #374151;
+        }
+
+        .btn-secondary {
+            background: var(--bg-accent);
+            color: #4B5563;
+            border-color: #6B7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4B5563;
+            color: white;
+        }
+
+        /* Egg Batch Styling */
+        .egg-batch {
+            margin-bottom: 0.5rem;
+        }
+        
+        .egg-batch:last-child {
+            margin-bottom: 0;
+        }
+        
+        .batch-label {
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        #timelineReferenceGroup {
+            border: 2px solid var(--monarch-secondary);
+        }
+        
+        #timelineReferenceGroup .form-label {
+            color: var(--monarch-primary);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: none;
+        }
+
+        .container.show { display: block; }
+
+        .header {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow-soft);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid var(--monarch-secondary);
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--monarch-primary);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .main-content {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px var(--shadow-soft);
+            border: 2px solid var(--monarch-secondary);
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--bg-accent);
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            border: 2px solid var(--monarch-secondary);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: var(--monarch-secondary);
+            color: white;
+        }
+
+        .tab:hover {
+            background: var(--monarch-primary);
+            color: white;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--monarch-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .welcome-message h3 {
+            font-size: 2rem;
+            color: var(--monarch-primary);
+            margin-bottom: 1rem;
+        }
+
+        .line-card {
+            background: var(--bg-accent);
+            border: 2px solid var(--monarch-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .line-card:hover {
+            box-shadow: 0 8px 25px var(--shadow-soft);
+            border-color: var(--monarch-primary);
+        }
+
+        .line-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .line-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--monarch-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .line-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .stage-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .info-item {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        .info-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-egg { background: #FEF3C7; color: #92400E; border: 2px solid var(--warning-amber); }
+        .status-first, .status-second, .status-third, .status-fourth, .status-fifth {
+            background: #D1FAE5; color: #065F46; border: 2px solid var(--success-green);
+        }
+        .status-finishing { background: #E0E7FF; color: #3730A3; border: 2px solid var(--info-blue); }
+        .status-pupal { background: #FDE2E7; color: #BE185D; border: 2px solid #EC4899; }
+        .status-adult { background: #F3F4F6; color: #374151; border: 2px solid var(--monarch-sage); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 3px solid var(--monarch-secondary);
+        }
+
+        .modal h2 {
+            color: var(--monarch-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .task-list {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            border: 2px solid var(--monarch-secondary);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .task-header {
+            color: white;
+            padding: 1.5rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .task-header.urgent { background: var(--danger-red); }
+        .task-header.hatching { background: var(--warning-amber); }
+        .task-header.cup-change { background: var(--monarch-primary); }
+        .task-header.diet { background: var(--warning-amber); }
+        .task-header.genotype { background: var(--success-green); }
+        .task-header.finishing { background: #9333EA; }
+        .task-header.hang { background: var(--monarch-dark); }
+        .task-header.routine { background: var(--monarch-sage); color: var(--text-primary); }
+
+        .task-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .task-item:last-child { border-bottom: none; }
+
+        .task-line {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Real Monarch Butterfly Logo - Based on Actual Photo */
+        /* Orange Monarch Butterfly Emoji */
+        .monarch-logo {
+            display: inline-block;
+            filter: hue-rotate(25deg) saturate(1.5) brightness(1.1);
+            font-size: 48px;
+        }
+
+        .monarch-text {
+            background: linear-gradient(45deg, #E67E22, #27AE60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .monarch-text {
+            background: linear-gradient(45deg, #E67E22, #27AE60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .orange-butterfly {
+            filter: sepia(1) saturate(4) hue-rotate(-10deg) brightness(0.9) contrast(1.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-form">
+            <h1 class="login-title">
+                <span class="monarch-logo">
+                    
+                </span>
+            </h1>
+            <h2 class="login-title">Merlin Lab</h2>
+            <p class="login-subtitle">Monarch Development Tracking</p>
+            
+            <div id="loginError" class="error">Error message</div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">TAMU Email Address</label>
+                    <input type="email" class="form-input" id="userEmail" required placeholder="researcher@tamu.edu">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="userPassword" required placeholder="Enter lab password">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="userName" required placeholder="Dr. Jane Smith">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Lab Role (Optional)</label>
+                    <select class="form-select" id="userRole">
+                        <option value="">Select your role (optional)</option>
+                        <option value="PI">Principal Investigator</option>
+                        <option value="PostDoc">Post-Doctoral Researcher</option>
+                        <option value="PhD">PhD Student</option>
+                        <option value="Masters">Masters Student</option>
+                        <option value="Undergrad">Undergraduate</option>
+                        <option value="Technician">Lab Technician</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Enter Lab System</button>
+            </form>
+            
+            <!-- Access Restriction Notice -->
+            <div style="margin-top: 1rem; padding: 0.75rem; background: #F9FAFB; border: 1px solid #6B7280; border-radius: 6px; text-align: center;">
+                <div style="font-size: 0.75rem; color: #4B5563; margin: 0;">
+                    🔒 Access limited to authorized lab members only
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainContainer" class="container">
+        <header class="header">
+            <div>
+                <div class="header-title">
+                    <span class="monarch-logo" style="font-size: 1.8rem; margin-right: 0.5rem; filter: sepia(1) saturate(4) hue-rotate(-10deg) brightness(0.9) contrast(1.3);">🦋</span>
+                    <h1 style="display: inline; margin: 0; font-size: 1.8rem;">Merlin Lab</h1>
+                </div>
+                <p style="margin: 0; font-size: 1rem; opacity: 0.8; color: var(--text-slate);">Monarch Development Tracking</p>
+            </div>
+            <div class="user-info">
+                <div style="text-align: right;">
+                    <span id="currentUserName">User</span>
+                    <div id="currentUserRole" style="font-size: 0.8rem; color: var(--text-slate); margin-top: 2px;"></div>
+                </div>
+                <button class="btn btn-secondary" onclick="changePassword()" style="margin-left: 1rem;">Change Password</button>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('lines', this)">📊 Individual Lines</button>
+                <button class="tab" onclick="switchTab('overview', this)">📋 Overview Table</button>
+                <button class="tab" onclick="switchTab('tasks', this)">📋 Daily Work List</button>
+            </div>
+
+            <div id="linesTab" class="tab-content active">
+                <div class="section-title">
+                    <span class="monarch-logo" style="font-size: 1.5rem; margin-right: 0.5rem; filter: sepia(1) saturate(4) hue-rotate(-10deg) brightness(0.9) contrast(1.3);">🦋</span>
+                    Monarch Lines
+                    <button class="btn btn-primary" onclick="openAddLineModal()" style="float: right;">Add New Line</button>
+                </div>
+                <div id="linesContainer">
+                    <div class="welcome-message">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">
+                            <span style="filter: sepia(1) saturate(4) hue-rotate(-10deg) brightness(0.9) contrast(1.3);">🦋</span>
+                        </div>
+                        <h3>Welcome to Merlin Lab!</h3>
+                        <p>Start tracking your first monarch butterfly development line</p>
+                        <button class="btn btn-primary" onclick="openAddLineModal()" style="margin-top: 2rem;">Add Your First Line</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="overviewTab" class="tab-content">
+                <div class="section-title">📊 Overview Table</div>
+                <div id="overviewContainer">
+                    <p>Overview of all lines will appear here</p>
+                </div>
+                
+                <!-- Mating Data Management Section -->
+                <div style="margin-top: 2rem; padding: 1rem; background: var(--background-light); border-radius: 8px; border: 1px solid var(--border);">
+                    <div class="section-title">
+                        <span style="font-size: 1.2rem; margin-right: 0.5rem; filter: sepia(1) saturate(4) hue-rotate(-10deg) brightness(0.9) contrast(1.3);">🦋</span>
+                        Data Management & Downloads
+                    </div>
+                    
+                    <!-- Mating Data Section -->
+                    <div style="margin-top: 1rem;">
+                        <h4 style="color: var(--monarch-orange); margin: 0 0 1rem 0;">Mating Data</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <button class="btn btn-primary" onclick="downloadMatingHistory()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                📊 Download CSV History
+                            </button>
+                            <button class="btn btn-primary" onclick="downloadMatingHistoryExcel()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                📈 Download Excel File
+                            </button>
+                            <button class="btn btn-secondary" onclick="showMatingStats()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                📋 View Statistics
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearOldMatingRecords()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                🗑️ Clear Old Records
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Complete Line History Section -->
+                    <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                        <h4 style="color: var(--monarch-orange); margin: 0 0 1rem 0;">Complete Line History (Parents → Pupation)</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                            <button class="btn btn-primary" onclick="downloadAllLinesHistory()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                📄 Download All Lines History
+                            </button>
+                            <button class="btn btn-secondary" onclick="showLineHistoryOptions()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                📝 Download Individual Line History
+                            </button>
+                            <button class="btn btn-secondary" onclick="showCompleteHistoryStats()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                📊 View History Statistics
+                            </button>
+                        </div>
+                        <div style="margin-top: 1rem; padding: 1rem; background: var(--monarch-cream); border-radius: 6px; font-size: 0.9rem; color: var(--text-slate);">
+                            <strong>Complete History includes:</strong> Parent mating data, all stage changes, diet updates, condition updates, individual count changes, genotyping, and all researcher notes with timestamps.
+                        </div>
+                    </div>
+                    
+                    <div id="matingStats" style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; display: none;"></div>
+                    <div id="lineHistoryOptions" style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; display: none;"></div>
+                    <div id="historyStats" style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; display: none;"></div>
+                </div>
+            </div>
+
+            <div id="tasksTab" class="tab-content">
+                <div class="section-title">📋 Daily Work List - <span id="todayDate"></span></div>
+                <div id="dailyTasksContainer">
+                    <div class="welcome-message">
+                        <h3>No tasks scheduled for today</h3>
+                        <p>All lines are up to date with their care schedule</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Line Modal -->
+    <div id="lineModal" class="modal">
+        <div class="modal-content">
+            <h2>Add New Monarch Line</h2>
+            <form id="lineForm">
+                <div class="form-group">
+                    <label class="form-label">Monarch Line Name</label>
+                    <input type="text" class="form-input" id="lineName" required placeholder="e.g., Wild Type Population A">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Current Development Stage</label>
+                    <select class="form-select" id="currentStage" required onchange="toggleEggDateRequirement()">
+                        <option value="egg">🥚 Egg</option>
+                        <option value="first">🐛 1st Instar</option>
+                        <option value="second">🐛 2nd Instar</option>
+                        <option value="third">🐛 3rd Instar</option>
+                        <option value="fourth">🐛 4th Instar</option>
+                        <option value="fifth">🐛 5th Instar</option>
+                        <option value="finishing">🏠 Finishing Cup</option>
+                        <option value="pupal">🛡️ Pupal</option>
+                        <option value="adult">🦋 Adult</option>
+                    </select>
+                    <small style="color: var(--text-secondary);">Adult stage represents mature monarch butterflies ready for reproduction</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Individual Count</label>
+                    <input type="number" class="form-input" id="individualCount" required min="1" value="1">
+                </div>
+                <div class="form-group" id="eggDateGroup">
+                    <label class="form-label" id="eggDateLabel">Egg Laid Date(s)</label>
+                    
+                    <!-- Multiple Egg Batches Container -->
+                    <div id="eggBatchesContainer">
+                        <div class="egg-batch" data-batch="1">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="date" class="form-input egg-date-input" id="eggLaidDate_1" 
+                                       style="flex: 1;" title="Select date when eggs were laid">
+                                <span class="batch-label" style="font-size: 0.8rem; color: var(--text-slate); min-width: 60px;">Batch 1</span>
+                                <button type="button" class="btn btn-secondary" onclick="removeEggBatch(1)" 
+                                        style="font-size: 0.7rem; padding: 0.25rem 0.5rem; display: none;" id="removeBtn_1">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Another Batch Button -->
+                    <div style="margin: 0.5rem 0;">
+                        <button type="button" class="btn btn-secondary" onclick="addEggBatch()" 
+                                style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">+ Add Another Egg Batch</button>
+                    </div>
+                    
+                    <!-- Quick Date Buttons -->
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary" onclick="setEggDate(0)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">Today</button>
+                        <button type="button" class="btn btn-secondary" onclick="setEggDate(-1)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">Yesterday</button>
+                        <button type="button" class="btn btn-secondary" onclick="setEggDate(-2)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">2 Days Ago</button>
+                        <button type="button" class="btn btn-secondary" onclick="setEggDate(-7)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">1 Week Ago</button>
+                        <button type="button" class="btn btn-secondary" onclick="setEggDate(-14)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">2 Weeks Ago</button>
+                        <button type="button" class="btn btn-secondary" onclick="estimateEggDate()" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">📅 Auto-Estimate</button>
+                    </div>
+                    
+                    <!-- Timeline Reference Selection -->
+                    <div id="timelineReferenceGroup" style="margin-top: 1rem; padding: 1rem; background: var(--monarch-cream); border-radius: 6px;">
+                        <label class="form-label" style="margin-bottom: 0.5rem;">📅 Lifecycle Timeline Reference</label>
+                        <select class="form-select" id="timelineReference" style="font-size: 0.9rem;">
+                            <option value="first">Use First Batch for Timeline (Default)</option>
+                        </select>
+                        <small style="color: var(--text-slate); margin-top: 0.5rem; display: block;">
+                            The selected batch date will be used to calculate development stages, genotyping dates, and daily task schedules.
+                        </small>
+                    </div>
+                    
+                    <small style="color: var(--text-slate); margin-top: 0.5rem; display: block;" id="eggDateHelp">
+                        Add multiple egg laying dates for the same line. Choose which batch to use for lifecycle timing, or leave as default (first batch).
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Condition Status</label>
+                    <select class="form-select" id="condition">
+                        <option value="normal">✅ Normal Development</option>
+                        <option value="delay">⚠️ Developmental Delay</option>
+                        <option value="infection">🚨 Infection Detected</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Alert Recipients (Optional)</label>
+                    <div id="emailInputs">
+                        <div class="email-input-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <input type="email" class="form-input" placeholder="researcher@tamu.edu" style="flex: 1;">
+                            <button type="button" class="btn btn-secondary" onclick="addEmailInput()" style="padding: 0.5rem;">+</button>
+                        </div>
+                    </div>
+                    <small style="color: var(--text-slate);">Add emails to receive alerts for genotyping, hanging, etc.</small>
+                </div>
+                <div class="actions-grid">
+                    <button type="submit" class="btn btn-primary">Add Line</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('lineModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Line Modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <h2>Update Monarch Line</h2>
+            <form id="updateForm">
+                <div class="form-group">
+                    <label class="form-label">Action Type</label>
+                    <select class="form-select" id="updateAction" onchange="toggleUpdateFields()">
+                        <option value="">Select action...</option>
+                        <option value="stage">Change Development Stage</option>
+                        <option value="diet">Change Diet</option>
+                        <option value="condition">Update Condition</option>
+                        <option value="count">Update Individual Count</option>
+                        <option value="jing_count">Record J-ing Count (Finishing Cup)</option>
+                        <option value="egg_date">Update Egg Date</option>
+                        <option value="genotype">Record Genotyping Results</option>
+                        <option value="mating">Record Mating Data</option>
+                        <option value="note">Add Research Note</option>
+                        <option value="status">Change Line Status</option>
+                        <option value="email">Manage Email Alerts</option>
+                    </select>
+                </div>
+
+                <div id="updateFields">
+                    <!-- Dynamic fields based on action type -->
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Name (Optional)</label>
+                    <input type="text" class="form-input" id="updaterName" placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Update Notes</label>
+                    <textarea class="form-textarea" id="updateNotes" rows="3" placeholder="Additional observations or comments..."></textarea>
+                </div>
+
+                <div class="actions-grid">
+                    <button type="submit" class="btn btn-primary">Submit Update</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('updateModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h2>Change Lab Password</h2>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" class="form-input" id="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-input" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-input" id="confirmPassword" required>
+                </div>
+                <div id="passwordError" class="error">Password error</div>
+                <div class="actions-grid">
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('passwordModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let lines = [];
+        let lineCounter = 0;
+
+        // Development stages
+        const stageData = {
+            parents: { name: 'Parents (Breeding)', duration: 0, next: 'egg', daysSinceEgg: -1 },
+            egg: { name: 'Egg', duration: 4, next: 'first', daysSinceEgg: 0 },
+            first: { name: '1st Instar', duration: 5, next: 'second', daysSinceEgg: 4 },
+            second: { name: '2nd Instar', duration: 5, next: 'third', daysSinceEgg: 9 },
+            third: { name: '3rd Instar', duration: 5, next: 'fourth', daysSinceEgg: 14 },
+            fourth: { name: '4th Instar', duration: 5, next: 'fifth', daysSinceEgg: 19, genotype: true },
+            fifth: { name: '5th Instar', duration: 5, next: 'finishing', daysSinceEgg: 24 },
+            finishing: { name: 'Finishing Cup', duration: 5, next: 'j-ing', daysSinceEgg: 29 },
+            'j-ing': { name: 'J-ing Stage', duration: 1, next: 'pupal', daysSinceEgg: 34 },
+            pupal: { name: 'Pupal', duration: 5, next: 'hang-alert', daysSinceEgg: 35 },
+            'hang-alert': { name: 'Hang Pupae Alert', duration: 14, next: 'adult', daysSinceEgg: 40 },
+            adult: { name: 'Adult', duration: 0, next: null, daysSinceEgg: 54 }
+        };
+
+        // Utility functions
+        function formatDateInput(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function getDaysSinceEgg(line) {
+            if (!line.eggDate) return 0;
+            const today = new Date();
+            const eggDate = new Date(line.eggDate);
+            return Math.floor((today - eggDate) / (1000 * 60 * 60 * 24));
+        }
+
+        function getNextLineNumber() {
+            lineCounter++;
+            localStorage.setItem('lineCounter', lineCounter);
+            return String(lineCounter).padStart(2, '0'); // MER-01, MER-02, etc.
+        }
+
+        function getInitials(name) {
+            return name.split(' ')
+                      .map(word => word.charAt(0).toUpperCase())
+                      .slice(0, 2)
+                      .join('');
+        }
+
+        // Data management
+        function loadData() {
+            const savedLines = localStorage.getItem('merlinLines');
+            if (savedLines) lines = JSON.parse(savedLines);
+            
+            const savedCounter = localStorage.getItem('lineCounter');
+            if (savedCounter) lineCounter = parseInt(savedCounter);
+            
+            const savedActivity = localStorage.getItem('merlinActivity');
+            if (savedActivity) window.activityLog = JSON.parse(savedActivity);
+            else window.activityLog = [];
+        }
+
+        function saveData() {
+            localStorage.setItem('merlinLines', JSON.stringify(lines));
+            localStorage.setItem('lineCounter', lineCounter.toString());
+        }
+
+        // Mating Data Management Functions
+        function saveMatingRecord(matingRecord, line) {
+            // Save to localStorage for in-browser persistence
+            let matingHistory = JSON.parse(localStorage.getItem('merlinMatingHistory') || '[]');
+            
+            const historyEntry = {
+                ...matingRecord,
+                lineId: line.id,
+                lineName: line.name,
+                parentGeneration: line.generation || 'F1'
+            };
+            
+            matingHistory.push(historyEntry);
+            
+            // Keep only last 1000 records to prevent storage overflow
+            if (matingHistory.length > 1000) {
+                matingHistory = matingHistory.slice(-1000);
+            }
+            
+            localStorage.setItem('merlinMatingHistory', JSON.stringify(matingHistory));
+            
+            // Auto-trigger download for backup every 50 records
+            if (matingHistory.length % 50 === 0) {
+                downloadMatingHistory();
+            }
+        }
+
+        function downloadMatingHistory() {
+            const matingHistory = JSON.parse(localStorage.getItem('merlinMatingHistory') || '[]');
+            
+            if (matingHistory.length === 0) {
+                alert('No mating records to download');
+                return;
+            }
+            
+            // Create CSV content
+            const headers = [
+                'Record ID', 'Date', 'Time', 'Line ID', 'Line Name', 'Generation',
+                'Number of Pairs', 'Male ID', 'Female ID', 'Mating Status',
+                'Environment', 'Expected Egg Date', 'Recorded By', 'Timestamp', 'Notes'
+            ];
+            
+            const csvContent = [
+                headers.join(','),
+                ...matingHistory.map(record => [
+                    record.id,
+                    record.date,
+                    record.time || '',
+                    record.lineId,
+                    `"${record.lineName || ''}"`,
+                    record.parentGeneration || '',
+                    record.pairs,
+                    `"${record.maleId || ''}"`,
+                    `"${record.femaleId || ''}"`,
+                    record.status || '',
+                    record.environment || '',
+                    record.expectedEggDate || '',
+                    `"${record.recordedBy || ''}"`,
+                    record.timestamp,
+                    `"${record.notes || ''}"`
+                ].join(','))
+            ].join('\\n');
+            
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `monarch_mating_history_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            // Also create Excel-compatible format
+            downloadMatingHistoryExcel();
+        }
+
+        function downloadMatingHistoryExcel() {
+            const matingHistory = JSON.parse(localStorage.getItem('merlinMatingHistory') || '[]');
+            
+            // Create tab-separated values for better Excel compatibility
+            const headers = [
+                'Record ID', 'Date', 'Time', 'Line ID', 'Line Name', 'Generation',
+                'Number of Pairs', 'Male ID', 'Female ID', 'Mating Status',
+                'Environment', 'Expected Egg Date', 'Recorded By', 'Timestamp', 'Notes'
+            ];
+            
+            const tsvContent = [
+                headers.join('\\t'),
+                ...matingHistory.map(record => [
+                    record.id,
+                    record.date,
+                    record.time || '',
+                    record.lineId,
+                    record.lineName || '',
+                    record.parentGeneration || '',
+                    record.pairs,
+                    record.maleId || '',
+                    record.femaleId || '',
+                    record.status || '',
+                    record.environment || '',
+                    record.expectedEggDate || '',
+                    record.recordedBy || '',
+                    record.timestamp,
+                    record.notes || ''
+                ].join('\\t'))
+            ].join('\\n');
+            
+            const blob = new Blob([tsvContent], { type: 'application/vnd.ms-excel' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `monarch_mating_history_${new Date().toISOString().split('T')[0]}.xls`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function getMatingRecordCount() {
+            const matingHistory = JSON.parse(localStorage.getItem('merlinMatingHistory') || '[]');
+            return matingHistory.length;
+        }
+
+        function clearOldMatingRecords() {
+            if (confirm('This will remove mating records older than 6 months. Continue?')) {
+                const matingHistory = JSON.parse(localStorage.getItem('merlinMatingHistory') || '[]');
+                const sixMonthsAgo = new Date();
+                sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+                
+                const recentRecords = matingHistory.filter(record => 
+                    new Date(record.timestamp) > sixMonthsAgo
+                );
+                
+                localStorage.setItem('merlinMatingHistory', JSON.stringify(recentRecords));
+                
+                const removedCount = matingHistory.length - recentRecords.length;
+                alert(`Removed ${removedCount} old mating records. ${recentRecords.length} records remain.`);
+            }
+        }
+
+        // Complete Line History Management
+        function saveCompleteLineHistory(line, action, data) {
+            if (!line.completeHistory) line.completeHistory = [];
+            
+            const historyEntry = {
+                id: generateId(),
+                timestamp: new Date().toISOString(),
+                date: new Date().toISOString().split('T')[0],
+                time: new Date().toTimeString().slice(0,5),
+                action: action,
+                stage: line.currentStage,
+                daysSinceEgg: getDaysSinceEgg(line),
+                recordedBy: currentUser.name,
+                data: data || {},
+                lineSnapshot: {
+                    name: line.name,
+                    id: line.id,
+                    currentStage: line.currentStage,
+                    individualCount: line.individualCount,
+                    condition: line.condition,
+                    status: line.status
+                }
+            };
+            
+            line.completeHistory.push(historyEntry);
+            
+            // Also save to global history for cross-line tracking
+            let globalHistory = JSON.parse(localStorage.getItem('merlinCompleteHistory') || '[]');
+            globalHistory.push({
+                ...historyEntry,
+                lineId: line.id,
+                lineName: line.name
+            });
+            
+            // Keep only last 2000 entries to prevent storage overflow
+            if (globalHistory.length > 2000) {
+                globalHistory = globalHistory.slice(-2000);
+            }
+            
+            localStorage.setItem('merlinCompleteHistory', JSON.stringify(globalHistory));
+        }
+
+        function downloadCompleteLineHistory(lineId) {
+            const line = lines.find(l => l.id === lineId);
+            if (!line || !line.completeHistory || line.completeHistory.length === 0) {
+                alert('No history records found for this line');
+                return;
+            }
+            
+            downloadLineHistoryFile(line.completeHistory, line.name, line.id);
+        }
+
+        function downloadAllLinesHistory() {
+            const globalHistory = JSON.parse(localStorage.getItem('merlinCompleteHistory') || '[]');
+            
+            if (globalHistory.length === 0) {
+                alert('No history records found');
+                return;
+            }
+            
+            const headers = [
+                'Record ID', 'Timestamp', 'Date', 'Time', 'Line ID', 'Line Name',
+                'Action', 'Stage', 'Days Since Egg', 'Recorded By', 'Individual Count',
+                'Condition', 'Status', 'Additional Data'
+            ];
+            
+            const csvContent = [
+                headers.join(','),
+                ...globalHistory.map(record => [
+                    record.id,
+                    record.timestamp,
+                    record.date,
+                    record.time,
+                    record.lineId,
+                    `"${record.lineName}"`,
+                    `"${record.action}"`,
+                    record.stage,
+                    record.daysSinceEgg,
+                    `"${record.recordedBy}"`,
+                    record.lineSnapshot.individualCount,
+                    record.lineSnapshot.condition,
+                    record.lineSnapshot.status,
+                    `"${JSON.stringify(record.data).replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `monarch_complete_history_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function downloadLineHistoryFile(history, lineName, lineId) {
+            const headers = [
+                'Record ID', 'Timestamp', 'Date', 'Time', 'Action', 'Stage', 'Days Since Egg',
+                'Recorded By', 'Individual Count', 'Condition', 'Status', 'Additional Data'
+            ];
+            
+            const csvContent = [
+                headers.join(','),
+                ...history.map(record => [
+                    record.id,
+                    record.timestamp,
+                    record.date,
+                    record.time,
+                    `"${record.action}"`,
+                    record.stage,
+                    record.daysSinceEgg,
+                    `"${record.recordedBy}"`,
+                    record.lineSnapshot.individualCount,
+                    record.lineSnapshot.condition,
+                    record.lineSnapshot.status,
+                    `"${JSON.stringify(record.data).replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `line_${lineId}_${lineName.replace(/[^a-zA-Z0-9]/g, '_')}_history_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        function showMatingStats() {
+            const matingHistory = JSON.parse(localStorage.getItem('merlinMatingHistory') || '[]');
+            const statsDiv = document.getElementById('matingStats');
+            
+            if (matingHistory.length === 0) {
+                statsDiv.innerHTML = '<p>No mating records found.</p>';
+                statsDiv.style.display = 'block';
+                return;
+            }
+            
+            // Calculate statistics
+            const totalRecords = matingHistory.length;
+            const totalPairs = matingHistory.reduce((sum, record) => sum + (record.pairs || 0), 0);
+            const uniqueLines = new Set(matingHistory.map(record => record.lineId)).size;
+            
+            // Status breakdown
+            const statusCounts = {};
+            matingHistory.forEach(record => {
+                statusCounts[record.status] = (statusCounts[record.status] || 0) + 1;
+            });
+            
+            // Recent activity (last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const recentRecords = matingHistory.filter(record => 
+                new Date(record.timestamp) > thirtyDaysAgo
+            ).length;
+            
+            // Top researchers
+            const researcherCounts = {};
+            matingHistory.forEach(record => {
+                researcherCounts[record.recordedBy] = (researcherCounts[record.recordedBy] || 0) + 1;
+            });
+            
+            statsDiv.innerHTML = `
+                <h4 style="margin: 0 0 1rem 0; color: var(--primary);">🦋 Mating Data Statistics</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <strong>Total Records:</strong> ${totalRecords}<br>
+                        <strong>Total Pairs:</strong> ${totalPairs}<br>
+                        <strong>Lines Involved:</strong> ${uniqueLines}<br>
+                        <strong>Recent Activity:</strong> ${recentRecords} records (30 days)
+                    </div>
+                    <div>
+                        <strong>Status Breakdown:</strong><br>
+                        ${Object.entries(statusCounts).map(([status, count]) => 
+                            `${status}: ${count} records`
+                        ).join('<br>')}
+                    </div>
+                    <div>
+                        <strong>Top Researchers:</strong><br>
+                        ${Object.entries(researcherCounts)
+                            .sort(([,a], [,b]) => b - a)
+                            .slice(0, 3)
+                            .map(([name, count]) => `${name}: ${count} records`)
+                            .join('<br>')}
+                    </div>
+                </div>
+                <button onclick="document.getElementById('matingStats').style.display='none'" 
+                        class="btn btn-secondary" style="margin-top: 1rem;">Close Statistics</button>
+            `;
+            
+            statsDiv.style.display = 'block';
+        }
+
+        function showLineHistoryOptions() {
+            const optionsDiv = document.getElementById('lineHistoryOptions');
+            
+            if (lines.length === 0) {
+                optionsDiv.innerHTML = '<p>No lines available.</p>';
+                optionsDiv.style.display = 'block';
+                return;
+            }
+            
+            optionsDiv.innerHTML = `
+                <h4 style="margin: 0 0 1rem 0; color: var(--primary);">📝 Download Individual Line History</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                    ${lines.map(line => `
+                        <div style="border: 1px solid var(--border); padding: 1rem; border-radius: 6px;">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">${line.name} (#${line.id})</div>
+                            <div style="font-size: 0.9rem; color: var(--text-slate); margin-bottom: 1rem;">
+                                Stage: ${stageData[line.currentStage].name}<br>
+                                History Records: ${line.completeHistory ? line.completeHistory.length : 0}
+                            </div>
+                            <button onclick="downloadCompleteLineHistory('${line.id}')" 
+                                    class="btn btn-primary" style="width: 100%; font-size: 0.85rem;">
+                                📄 Download History
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+                <button onclick="document.getElementById('lineHistoryOptions').style.display='none'" 
+                        class="btn btn-secondary" style="margin-top: 1rem;">Close</button>
+            `;
+            
+            optionsDiv.style.display = 'block';
+        }
+
+        function showCompleteHistoryStats() {
+            const globalHistory = JSON.parse(localStorage.getItem('merlinCompleteHistory') || '[]');
+            const statsDiv = document.getElementById('historyStats');
+            
+            if (globalHistory.length === 0) {
+                statsDiv.innerHTML = '<p>No history records found.</p>';
+                statsDiv.style.display = 'block';
+                return;
+            }
+            
+            // Calculate statistics
+            const totalRecords = globalHistory.length;
+            const uniqueLines = new Set(globalHistory.map(record => record.lineId)).size;
+            
+            // Action breakdown
+            const actionCounts = {};
+            globalHistory.forEach(record => {
+                actionCounts[record.action] = (actionCounts[record.action] || 0) + 1;
+            });
+            
+            // Recent activity (last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const recentRecords = globalHistory.filter(record => 
+                new Date(record.timestamp) > thirtyDaysAgo
+            ).length;
+            
+            // Top researchers
+            const researcherCounts = {};
+            globalHistory.forEach(record => {
+                researcherCounts[record.recordedBy] = (researcherCounts[record.recordedBy] || 0) + 1;
+            });
+            
+            statsDiv.innerHTML = `
+                <h4 style="margin: 0 0 1rem 0; color: var(--primary);">📊 Complete History Statistics</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <strong>Total Records:</strong> ${totalRecords}<br>
+                        <strong>Lines Tracked:</strong> ${uniqueLines}<br>
+                        <strong>Recent Activity:</strong> ${recentRecords} records (30 days)
+                    </div>
+                    <div>
+                        <strong>Top Actions:</strong><br>
+                        ${Object.entries(actionCounts)
+                            .sort(([,a], [,b]) => b - a)
+                            .slice(0, 5)
+                            .map(([action, count]) => `${action}: ${count}`)
+                            .join('<br>')}
+                    </div>
+                </div>
+                <button onclick="document.getElementById('historyStats').style.display='none'" 
+                        class="btn btn-secondary" style="margin-top: 1rem;">Close Statistics</button>
+            `;
+            
+            statsDiv.style.display = 'block';
+        }
+
+        // UI functions
+        function showError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function updateUserDisplay() {
+            document.getElementById('currentUserName').textContent = currentUser.name;
+            document.getElementById('currentUserRole').textContent = currentUser.role && currentUser.role !== 'Lab Member' ? currentUser.role : '';
+        }
+
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            element.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            if (tabName === 'overview') renderOverviewTable();
+            if (tabName === 'tasks') renderDailyTasks();
+        }
+
+        function openAddLineModal() {
+            // Initialize egg batch functionality
+            eggBatchCounter = 1;
+            
+            // Reset the form to single batch
+            const container = document.getElementById('eggBatchesContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="egg-batch" data-batch="1">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <input type="date" class="form-input egg-date-input" id="eggLaidDate_1" 
+                                   style="flex: 1;" title="Select date when eggs were laid" onchange="updateTimelineOptions()">
+                            <span class="batch-label" style="font-size: 0.8rem; color: var(--text-slate); min-width: 60px;">Batch 1</span>
+                            <button type="button" class="btn btn-secondary" onclick="removeEggBatch(1)" 
+                                    style="font-size: 0.7rem; padding: 0.25rem 0.5rem; display: none;" id="removeBtn_1">Remove</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Reset timeline reference selector
+            const timelineSelect = document.getElementById('timelineReference');
+            if (timelineSelect) {
+                timelineSelect.innerHTML = '<option value="first">Use First Batch for Timeline (Default)</option>';
+            }
+            
+            // Set today's date and focus on first input
+            const today = formatDateInput(new Date());
+            const firstInput = document.getElementById('eggLaidDate_1');
+            if (firstInput) {
+                firstInput.value = today;
+                setTimeout(() => firstInput.focus(), 100);
+            }
+            
+            updateTimelineOptions();
+            document.getElementById('lineModal').classList.add('show');
+        }
+
+        function setEggDate(daysOffset) {
+            const date = new Date();
+            date.setDate(date.getDate() + daysOffset);
+            const formattedDate = formatDateInput(date);
+            
+            // Set date for the most recent (highest numbered) egg batch input
+            const eggInputs = document.querySelectorAll('.egg-date-input');
+            if (eggInputs.length > 0) {
+                const lastInput = eggInputs[eggInputs.length - 1];
+                lastInput.value = formattedDate;
+                lastInput.focus();
+            }
+        }
+
+        let eggBatchCounter = 1;
+
+        function addEggBatch() {
+            eggBatchCounter++;
+            const container = document.getElementById('eggBatchesContainer');
+            const timelineSelect = document.getElementById('timelineReference');
+            
+            // Create new batch HTML
+            const batchHtml = `
+                <div class="egg-batch" data-batch="${eggBatchCounter}">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="date" class="form-input egg-date-input" id="eggLaidDate_${eggBatchCounter}" 
+                               style="flex: 1;" title="Select date when eggs were laid" onchange="updateTimelineOptions()">
+                        <span class="batch-label" style="font-size: 0.8rem; color: var(--text-slate); min-width: 60px;">Batch ${eggBatchCounter}</span>
+                        <button type="button" class="btn btn-secondary" onclick="removeEggBatch(${eggBatchCounter})" 
+                                style="font-size: 0.7rem; padding: 0.25rem 0.5rem;" id="removeBtn_${eggBatchCounter}">Remove</button>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', batchHtml);
+            
+            // Add option to timeline reference selector
+            const option = document.createElement('option');
+            option.value = `batch_${eggBatchCounter}`;
+            option.textContent = `Use Batch ${eggBatchCounter} for Timeline`;
+            timelineSelect.appendChild(option);
+            
+            // Show remove buttons when there are multiple batches
+            updateRemoveButtons();
+            
+            // Focus on the new input
+            document.getElementById(`eggLaidDate_${eggBatchCounter}`).focus();
+        }
+
+        function removeEggBatch(batchNumber) {
+            if (document.querySelectorAll('.egg-batch').length <= 1) {
+                alert('Cannot remove the last egg batch. At least one batch is required.');
+                return;
+            }
+            
+            // Remove the batch container
+            const batchElement = document.querySelector(`[data-batch="${batchNumber}"]`);
+            if (batchElement) {
+                batchElement.remove();
+            }
+            
+            // Remove corresponding option from timeline selector
+            const timelineSelect = document.getElementById('timelineReference');
+            const optionToRemove = timelineSelect.querySelector(`[value="batch_${batchNumber}"]`);
+            if (optionToRemove) {
+                optionToRemove.remove();
+            }
+            
+            // If the removed batch was selected as timeline reference, reset to first
+            if (timelineSelect.value === `batch_${batchNumber}`) {
+                timelineSelect.value = 'first';
+            }
+            
+            updateRemoveButtons();
+            updateTimelineOptions();
+        }
+
+        function updateRemoveButtons() {
+            const batches = document.querySelectorAll('.egg-batch');
+            batches.forEach((batch, index) => {
+                const removeBtn = batch.querySelector('button[id^="removeBtn_"]');
+                if (removeBtn) {
+                    removeBtn.style.display = batches.length > 1 ? 'block' : 'none';
+                }
+            });
+        }
+
+        function updateTimelineOptions() {
+            const timelineSelect = document.getElementById('timelineReference');
+            const eggInputs = document.querySelectorAll('.egg-date-input');
+            
+            // Clear existing options except "first"
+            const firstOption = timelineSelect.querySelector('[value="first"]');
+            timelineSelect.innerHTML = '';
+            timelineSelect.appendChild(firstOption);
+            
+            // Add options for batches with dates
+            eggInputs.forEach((input, index) => {
+                const batchNum = index + 1;
+                const date = input.value;
+                
+                if (date && batchNum > 1) {
+                    const option = document.createElement('option');
+                    option.value = `batch_${batchNum}`;
+                    option.textContent = `Use Batch ${batchNum} for Timeline (${new Date(date).toLocaleDateString()})`;
+                    timelineSelect.appendChild(option);
+                }
+            });
+            
+            // Update first option to show date if available
+            const firstInput = document.getElementById('eggLaidDate_1');
+            if (firstInput && firstInput.value) {
+                firstOption.textContent = `Use First Batch for Timeline (${new Date(firstInput.value).toLocaleDateString()}) - Default`;
+            } else {
+                firstOption.textContent = 'Use First Batch for Timeline (Default)';
+            }
+        }
+
+        function getSelectedEggDate() {
+            const timelineReference = document.getElementById('timelineReference').value;
+            
+            if (timelineReference === 'first') {
+                return document.getElementById('eggLaidDate_1').value;
+            } else {
+                const batchNumber = timelineReference.split('_')[1];
+                return document.getElementById(`eggLaidDate_${batchNumber}`).value;
+            }
+        }
+
+        function getAllEggDates() {
+            const eggInputs = document.querySelectorAll('.egg-date-input');
+            const dates = [];
+            
+            eggInputs.forEach((input, index) => {
+                if (input.value) {
+                    dates.push({
+                        batch: index + 1,
+                        date: input.value,
+                        formattedDate: new Date(input.value).toLocaleDateString()
+                    });
+                }
+            });
+            
+            return dates;
+        }
+
+        function setUpdateEggDate(daysOffset) {
+            const date = new Date();
+            date.setDate(date.getDate() + daysOffset);
+            const eggDateField = document.getElementById('newEggDate');
+            if (eggDateField) {
+                eggDateField.value = formatDateInput(date);
+            }
+        }
+
+        function toggleEggDateRequirement() {
+            const stage = document.getElementById('currentStage').value;
+            const eggDateLabel = document.getElementById('eggDateLabel');
+            const eggDateHelp = document.getElementById('eggDateHelp');
+            const timelineGroup = document.getElementById('timelineReferenceGroup');
+            
+            if (stage === 'adult') {
+                eggDateLabel.textContent = 'Original Egg Date(s) (Optional)';
+                eggDateHelp.textContent = 'For adult butterflies, egg dates are optional. Leave blank if unknown or add multiple dates for tracking next generation.';
+                if (timelineGroup) timelineGroup.style.display = 'none';
+            } else if (stage === 'egg') {
+                eggDateLabel.textContent = 'Egg Laid Date(s)';
+                eggDateHelp.textContent = 'Add multiple egg laying dates for the same line. Choose which batch to use for lifecycle timing, or leave as default (first batch).';
+                if (timelineGroup) timelineGroup.style.display = 'block';
+            } else {
+                eggDateLabel.textContent = 'Original Egg Date(s) (Estimated)';
+                eggDateHelp.textContent = 'For existing larvae/pupae, estimate the original egg dates or use Auto-Estimate. You can add multiple batches if eggs were laid on different days.';
+                if (timelineGroup) timelineGroup.style.display = 'block';
+            }
+        }
+
+        function estimateEggDate() {
+            const stage = document.getElementById('currentStage').value;
+            const today = new Date();
+            
+            // Estimate egg date based on current stage and typical development time
+            const stageDays = {
+                egg: 0,
+                first: -4,      // 4 days ago
+                second: -9,     // 9 days ago  
+                third: -14,     // 14 days ago
+                fourth: -19,    // 19 days ago
+                fifth: -24,     // 24 days ago
+                finishing: -29, // 29 days ago
+                pupal: -34,     // 34 days ago
+                adult: -54      // 54 days ago
+            };
+            
+            const estimatedDays = stageDays[stage] || 0;
+            const estimatedDate = new Date(today);
+            estimatedDate.setDate(today.getDate() + estimatedDays);
+            
+            // Set date for the most recent (highest numbered) egg batch input
+            const eggInputs = document.querySelectorAll('.egg-date-input');
+            if (eggInputs.length > 0) {
+                const lastInput = eggInputs[eggInputs.length - 1];
+                lastInput.value = formatDateInput(estimatedDate);
+                lastInput.focus();
+                
+                // Update timeline options to show the new date
+                updateTimelineOptions();
+            }
+            
+            alert(`📅 Estimated egg date: ${estimatedDate.toLocaleDateString()}\\n\\nBased on current stage: ${stage}\\nThis date has been filled in the most recent egg batch field.`);
+        }
+
+        function checkTerminationWarning() {
+            const statusSelect = document.getElementById('newStatus');
+            const warningDiv = document.getElementById('terminationWarning');
+            const reasonField = document.getElementById('statusReason');
+            
+            if (statusSelect && warningDiv && reasonField) {
+                if (statusSelect.value === 'terminated') {
+                    warningDiv.style.display = 'block';
+                    reasonField.required = true;
+                    reasonField.placeholder = 'REQUIRED: Explain why this line is being REMOVED (mortality, contamination, experimental failure, etc.)';
+                } else {
+                    warningDiv.style.display = 'none';
+                    reasonField.required = false;
+                    reasonField.placeholder = 'Optional: Reason for status change...';
+                }
+            }
+        }
+
+        function startNextGeneration(lineId) {
+            const line = lines.find(l => l.id === lineId);
+            if (!line) return;
+            
+            const newEggDate = prompt(
+                `🥚 Start Next Generation for ${line.name}\n\n` +
+                `When were the new eggs laid by this adult butterfly?\n\n` +
+                `Enter date (YYYY-MM-DD format) or leave blank to use today:`
+            );
+            
+            if (newEggDate === null) return; // User canceled
+            
+            const eggDate = newEggDate.trim() || formatDateInput(new Date());
+            
+            // Update the line to egg stage with new date
+            line.currentStage = 'egg';
+            line.eggDate = eggDate;
+            line.individualCount = 1; // Reset to 1 for new generation
+            line.condition = 'normal';
+            line.genotyped = false;
+            line.genotypeResult = null;
+            line.lastUpdatedBy = currentUser.name;
+            line.lastUpdated = new Date().toISOString();
+            
+            // Add to update history
+            if (!line.updateHistory) line.updateHistory = [];
+            line.updateHistory.push({
+                date: new Date().toISOString(),
+                action: 'next_generation',
+                notes: `Started next generation with egg date ${eggDate}`,
+                updatedBy: currentUser.name
+            });
+            
+            saveData();
+            renderLines();
+            
+            logActivity('update', `Started next generation for line ${line.name} with egg date ${eggDate}`, lineId);
+            
+            alert(`✅ Next generation started!\n\nLine ${line.name} has been reset to egg stage with new egg date: ${new Date(eggDate).toLocaleDateString()}\n\nThe lifecycle timeline and daily tasks will now track the new generation.`);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function openUpdateModal(lineId) {
+            const line = lines.find(l => l.id === lineId);
+            if (!line) return;
+            
+            // Store the line ID for updating
+            document.getElementById('updateModal').dataset.lineId = lineId;
+            document.getElementById('updateModal').classList.add('show');
+        }
+
+        function toggleUpdateFields() {
+            const action = document.getElementById('updateAction').value;
+            const fieldsContainer = document.getElementById('updateFields');
+            
+            let fieldsHtml = '';
+            
+            switch (action) {
+                case 'stage':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">New Development Stage</label>
+                            <select class="form-select" id="newStage" required onchange="toggleParentFields()">
+                                <option value="parents">👨‍👩‍👧‍👦 Parents (Breeding)</option>
+                                <option value="egg">🥚 Egg</option>
+                                <option value="first">🐛 1st Instar</option>
+                                <option value="second">🐛 2nd Instar</option>
+                                <option value="third">🐛 3rd Instar</option>
+                                <option value="fourth">🐛 4th Instar</option>
+                                <option value="fifth">🐛 5th Instar</option>
+                                <option value="finishing">🏠 Finishing Cup</option>
+                                <option value="j-ing">🪝 J-ing Stage</option>
+                                <option value="pupal">🛡️ Pupal</option>
+                                <option value="hang-alert">⚠️ Hang Pupae Alert</option>
+                                <option value="adult">🦋 Adult</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Parent Mating Fields (shown when Parents stage is selected) -->
+                        <div id="parentMatingFields" style="display: none; border-top: 2px solid var(--monarch-orange); margin-top: 1rem; padding-top: 1rem;">
+                            <div style="background: var(--monarch-cream); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                                <h4 style="margin: 0; color: var(--monarch-orange);">🦋 Parent Mating Information</h4>
+                                <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: var(--text-slate);">Record breeding pair details for this line</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Number of Breeding Pairs</label>
+                                <input type="number" class="form-input" id="breedingPairs" min="1" max="50" placeholder="Enter number of pairs">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Male Parent Identification</label>
+                                <input type="text" class="form-input" id="maleParentId" placeholder="Enter male identifier (e.g., M001, Line-A-Male-1)">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Female Parent Identification</label>
+                                <input type="text" class="form-input" id="femaleParentId" placeholder="Enter female identifier (e.g., F001, Line-B-Female-1)">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Mating Date</label>
+                                <input type="date" class="form-input" id="matingDateParent" value="${formatDateInput(new Date())}">
+                            </div>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'diet':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">Diet Type</label>
+                            <select class="form-select" id="dietType" required onchange="updateDietDescription()">
+                                <option value="">Select diet type...</option>
+                                <option value="diet_plate">Larvae on the diet plate</option>
+                                <option value="first_cup">Moved to 1st cup</option>
+                                <option value="cup_change">Changed cup</option>
+                                <option value="postponed">Postponed</option>
+                                <option value="second_cup">2nd Cup change</option>
+                                <option value="third_cup">3rd cup change</option>
+                                <option value="finishing_cup">Finishing cup</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Diet Description</label>
+                            <textarea class="form-textarea" id="dietDescription" rows="2" readonly placeholder="Description will auto-fill based on diet type"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Diet Change Date</label>
+                            <input type="date" class="form-input" id="lastDietDate" value="${formatDateInput(new Date())}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Next Diet Change Date</label>
+                            <input type="date" class="form-input" id="nextDietDate">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'condition':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">New Condition Status</label>
+                            <select class="form-select" id="newCondition" required>
+                                <option value="normal">✅ Normal Development</option>
+                                <option value="delay">⚠️ Developmental Delay</option>
+                                <option value="infection">🚨 Infection Detected</option>
+                                <option value="recovered">💚 Recovered</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Condition Change Date</label>
+                            <input type="date" class="form-input" id="conditionChangeDate" value="${formatDateInput(new Date())}">
+                        </div>
+                    `;
+                    break;
+                    
+                case 'count':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">New Individual Count</label>
+                            <input type="number" class="form-input" id="newCount" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Count Change Reason</label>
+                            <select class="form-select" id="countChangeReason">
+                                <option value="">Select reason (optional)</option>
+                                <option value="mortality">Natural mortality</option>
+                                <option value="recount">Recount correction</option>
+                                <option value="transfer">Transferred to another line</option>
+                                <option value="emerged">Adult emerged</option>
+                                <option value="other">Other reason</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'jing_count':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">Number of Animals Going to J-ing</label>
+                            <input type="number" class="form-input" id="jingCount" required min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Number Still in Finishing Cup (Daily Diet Needed)</label>
+                            <input type="number" class="form-input" id="stillFeeding" required min="0" max="100">
+                        </div>
+                        <div style="background: var(--monarch-cream); padding: 1rem; border-radius: 6px; margin: 1rem 0;">
+                            <strong>Note:</strong> Animals in J-ing stage should not be disturbed. Only count those moving to J-ing, and record how many are still feeding in finishing cup for daily diet changes.
+                        </div>
+                    `;
+                    break;
+                    
+                case 'egg_date':
+                    const currentBatches = line.eggBatches || (line.eggDate ? [{batch: 1, date: line.eggDate, formattedDate: new Date(line.eggDate).toLocaleDateString()}] : []);
+                    const existingBatchesHtml = currentBatches.length > 0 ? `
+                        <div style="background: var(--monarch-cream); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                            <h5 style="margin: 0 0 0.5rem 0; color: var(--monarch-primary);">📅 Current Egg Batches</h5>
+                            ${currentBatches.map(batch => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0;">
+                                    <span>Batch ${batch.batch}: ${batch.formattedDate}</span>
+                                    ${line.timelineReference === 'first' && batch.batch === 1 || line.timelineReference === 'batch_' + batch.batch ? '<span style="color: var(--monarch-secondary); font-size: 0.8rem;">📅 Timeline</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : '';
+                    
+                    const timelineOptionsHtml = currentBatches.length > 0 ? `
+                        <div class="form-group">
+                            <label class="form-label">📅 Timeline Reference (for development timing)</label>
+                            <select class="form-select" id="newTimelineReference">
+                                <option value="first" ${line.timelineReference === 'first' ? 'selected' : ''}>Use First Batch for Timeline</option>
+                                ${currentBatches.map(batch => 
+                                    `<option value="batch_${batch.batch}" ${line.timelineReference === 'batch_' + batch.batch ? 'selected' : ''}>
+                                        Use Batch ${batch.batch} for Timeline (${batch.formattedDate})
+                                    </option>`
+                                ).join('')}
+                                <option value="new_batch">Use New Batch for Timeline</option>
+                            </select>
+                            <small style="color: var(--text-slate); margin-top: 0.5rem; display: block;">
+                                Choose which egg batch date to use for calculating development stages and daily tasks.
+                            </small>
+                        </div>
+                    ` : '';
+                    
+                    fieldsHtml = `
+                        ${existingBatchesHtml}
+                        <div class="form-group">
+                            <label class="form-label">Add New Egg Batch Date</label>
+                            <input type="date" class="form-input" id="newEggDate" required>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                                <button type="button" class="btn btn-secondary" onclick="setUpdateEggDate(0)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">Today</button>
+                                <button type="button" class="btn btn-secondary" onclick="setUpdateEggDate(-1)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">Yesterday</button>
+                                <button type="button" class="btn btn-secondary" onclick="setUpdateEggDate(-2)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">2 Days Ago</button>
+                                <button type="button" class="btn btn-secondary" onclick="setUpdateEggDate(-7)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">1 Week Ago</button>
+                                <button type="button" class="btn btn-secondary" onclick="setUpdateEggDate(-14)" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">2 Weeks Ago</button>
+                            </div>
+                        </div>
+                        ${timelineOptionsHtml}
+                        <div class="form-group">
+                            <label class="form-label">Reason for Adding Batch</label>
+                            <select class="form-select" id="eggDateReason">
+                                <option value="additional_laying">Additional egg laying event</option>
+                                <option value="correction">Correction of previous date</option>
+                                <option value="reobservation">Re-observation of egg laying</option>
+                                <option value="batch_separation">Separate batch identification</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'genotype':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">Genotype Results</label>
+                            <select class="form-select" id="genotypeResult" required>
+                                <option value="">Select result...</option>
+                                <option value="wild_type">Wild Type (+/+)</option>
+                                <option value="heterozygous">Heterozygous (+/-)</option>
+                                <option value="homozygous">Homozygous Mutant (-/-)</option>
+                                <option value="pending">Results Pending</option>
+                                <option value="failed">Genotyping Failed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Genotype Date</label>
+                            <input type="date" class="form-input" id="genotypeDate" value="${formatDateInput(new Date())}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Genotype Notes</label>
+                            <textarea class="form-textarea" id="genotypeNotes" rows="2" placeholder="Additional genotype details..."></textarea>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'mating':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">Number of Mating Pairs</label>
+                            <input type="number" class="form-input" id="matingPairs" required min="1" max="50" placeholder="Enter number of pairs">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Male Identification</label>
+                            <input type="text" class="form-input" id="maleId" required placeholder="Enter male identifier (e.g., M001)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Female Identification</label>
+                            <input type="text" class="form-input" id="femaleId" required placeholder="Enter female identifier (e.g., F001)">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Mating Date</label>
+                            <input type="date" class="form-input" id="matingDate" value="${formatDateInput(new Date())}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Mating Status</label>
+                            <select class="form-select" id="matingStatus">
+                                <option value="completed">✅ Completed</option>
+                                <option value="failed">❌ Failed</option>
+                                <option value="active">🔄 Active</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'status':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">New Line Status</label>
+                            <select class="form-select" id="newStatus" required onchange="checkTerminationWarning()">
+                                <option value="active">🟢 Active</option>
+                                <option value="completed">✅ Completed</option>
+                                <option value="terminated">❌ Terminated</option>
+                                <option value="on_hold">⏸️ On Hold</option>
+                            </select>
+                        </div>
+                        <div id="terminationWarning" style="display: none; background: var(--attention-red); color: white; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                            <strong>🗑️ WARNING: LINE REMOVAL</strong><br>
+                            Terminating this line will PERMANENTLY REMOVE it from the system. All data for this line will be deleted and cannot be recovered. This should only be used for lines that cannot continue due to mortality, contamination, or experimental failure.
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Termination Reason (Required)</label>
+                            <textarea class="form-textarea" id="statusReason" rows="3" placeholder="REQUIRED: Explain why this line is being removed (mortality, contamination, experimental failure, etc.)"></textarea>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'email':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">Email Alert Recipients</label>
+                            <div id="emailInputsUpdate">
+                                <div class="email-input-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                    <input type="email" class="form-input" placeholder="researcher@tamu.edu" style="flex: 1;">
+                                    <button type="button" class="btn btn-secondary" onclick="addEmailInputUpdate()" style="padding: 0.5rem;">+</button>
+                                </div>
+                            </div>
+                            <small style="color: var(--text-slate);">Add or remove email recipients for this line's alerts</small>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'note':
+                    fieldsHtml = `
+                        <div class="form-group">
+                            <label class="form-label">Research Note Type</label>
+                            <select class="form-select" id="noteType">
+                                <option value="observation">📝 General Observation</option>
+                                <option value="behavior">🐛 Behavior Note</option>
+                                <option value="morphology">🔬 Morphology Note</option>
+                                <option value="experimental">🧪 Experimental Note</option>
+                                <option value="issue">⚠️ Issue/Problem</option>
+                                <option value="milestone">🎯 Milestone</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Research Note</label>
+                            <textarea class="form-textarea" id="researchNote" rows="4" required placeholder="Enter detailed research observations..."></textarea>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            fieldsContainer.innerHTML = fieldsHtml;
+            
+            // Set up onchange handler for diet description if diet action is selected
+            if (action === 'diet') {
+                setTimeout(() => {
+                    const dietTypeSelect = document.getElementById('dietType');
+                    if (dietTypeSelect) {
+                        dietTypeSelect.addEventListener('change', updateDietDescription);
+                    }
+                }, 100);
+            }
+            
+            // Set up parent fields toggle if stage action is selected
+            if (action === 'stage') {
+                setTimeout(() => {
+                    const stageSelect = document.getElementById('newStage');
+                    if (stageSelect) {
+                        stageSelect.addEventListener('change', toggleParentFields);
+                        toggleParentFields(); // Initialize visibility
+                    }
+                }, 100);
+            }
+        }
+
+        function toggleParentFields() {
+            const selectedStage = document.getElementById('newStage').value;
+            const parentFields = document.getElementById('parentMatingFields');
+            
+            if (parentFields) {
+                parentFields.style.display = selectedStage === 'parents' ? 'block' : 'none';
+            }
+        }
+
+        function updateDietDescription() {
+            const dietType = document.getElementById('dietType').value;
+            const descriptionArea = document.getElementById('dietDescription');
+            
+            const descriptions = {
+                'diet_plate': 'Larvae are currently on the diet plate, feeding on artificial diet.',
+                'first_cup': 'Larvae have been moved to their first individual cup for continued development.',
+                'cup_change': 'Cup has been changed to provide fresh environment and clean diet.',
+                'postponed': 'Diet change has been postponed due to specific circumstances.',
+                'second_cup': 'Second cup change performed to maintain optimal growing conditions.',
+                'third_cup': 'Third cup change performed for continued healthy development.',
+                'finishing_cup': 'Larvae moved to finishing cup for final instar development and pupation preparation.'
+            };
+            
+            if (descriptionArea && descriptions[dietType]) {
+                descriptionArea.value = descriptions[dietType];
+            }
+        }
+
+        function addEmailInputUpdate() {
+            const container = document.getElementById('emailInputsUpdate');
+            const newGroup = document.createElement('div');
+            newGroup.className = 'email-input-group';
+            newGroup.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+            newGroup.innerHTML = `
+                <input type="email" class="form-input" placeholder="researcher@tamu.edu" style="flex: 1;">
+                <button type="button" class="btn btn-secondary" onclick="removeEmailInputUpdate(this)" style="padding: 0.5rem;">-</button>
+            `;
+            container.appendChild(newGroup);
+        }
+
+        function removeEmailInputUpdate(button) {
+            const emailInputs = document.querySelectorAll('#emailInputsUpdate .email-input-group');
+            if (emailInputs.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        // Email management functions
+        function addEmailInput() {
+            const container = document.getElementById('emailInputs');
+            const newGroup = document.createElement('div');
+            newGroup.className = 'email-input-group';
+            newGroup.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+            newGroup.innerHTML = `
+                <input type="email" class="form-input" placeholder="researcher@tamu.edu" style="flex: 1;">
+                <button type="button" class="btn btn-secondary" onclick="removeEmailInput(this)" style="padding: 0.5rem;">-</button>
+            `;
+            container.appendChild(newGroup);
+        }
+
+        function removeEmailInput(button) {
+            const emailInputs = document.querySelectorAll('.email-input-group');
+            if (emailInputs.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function getEmailInputs() {
+            const inputs = document.querySelectorAll('#emailInputs input[type="email"]');
+            return Array.from(inputs)
+                .map(input => input.value.trim())
+                .filter(email => email && email.includes('@'));
+        }
+
+        // Activity logging
+        function logActivity(action, description, lineId = null) {
+            const activity = {
+                timestamp: new Date().toISOString(),
+                action: action,
+                description: description,
+                lineId: lineId,
+                user: currentUser.name
+            };
+            
+            if (!window.activityLog) window.activityLog = [];
+            window.activityLog.unshift(activity);
+            
+            // Keep only last 100 activities
+            if (window.activityLog.length > 100) {
+                window.activityLog = window.activityLog.slice(0, 100);
+            }
+            
+            localStorage.setItem('merlinActivity', JSON.stringify(window.activityLog));
+        }
+
+        // Email alerts (simulated)
+        function sendEmailAlert(subject, body, recipients) {
+            console.log('Email Alert:', { subject, body, recipients });
+            // In a real implementation, this would send actual emails
+            logActivity('alert', `Email sent: ${subject} to ${recipients.join(', ')}`);
+        }
+
+        // Enhanced diet change detection
+        function needsDietChange(line) {
+            if (!line.nextDietDate) return false;
+            const today = new Date();
+            const nextDate = new Date(line.nextDietDate);
+            return today >= nextDate;
+        }
+
+        // Enhanced genotype detection
+        function isGenotypeReady(line) {
+            return line.currentStage === 'fourth' && !line.genotyped;
+        }
+
+        // Enhanced condition detection
+        function requiresAttention(line) {
+            return line.condition !== 'normal' || isDelayed(line);
+        }
+
+        function isDelayed(line) {
+            if (!line.eggDate) return false;
+            const daysSinceEgg = getDaysSinceEgg(line);
+            const expectedStageDay = stageData[line.currentStage].daysSinceEgg;
+            const expectedDuration = stageData[line.currentStage].duration;
+            
+            // Allow 2 day buffer for normal variation
+            return daysSinceEgg > (expectedStageDay + expectedDuration + 2);
+        }
+
+        // Hanging alert detection
+        function needsHangingAlert(line) {
+            if (line.currentStage !== 'pupal' || !line.eggDate) return false;
+            const daysSinceEgg = getDaysSinceEgg(line);
+            return daysSinceEgg >= 54 && !line.hanged; // Day 54 = 20 days after pupation (day 34)
+        }
+
+        function changePassword() {
+            document.getElementById('passwordModal').classList.add('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        // Line rendering
+        function renderLines() {
+            const container = document.getElementById('linesContainer');
+            
+            if (lines.length === 0) {
+                container.innerHTML = `
+                    <div class="welcome-message">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">
+                            <span style="filter: sepia(1) saturate(4) hue-rotate(-10deg) brightness(0.9) contrast(1.3);">🦋</span>
+                        </div>
+                        <h3>Welcome to Merlin Lab!</h3>
+                        <p>Start tracking your first monarch development line</p>
+                        <button class="btn btn-primary" onclick="openAddLineModal()" style="margin-top: 2rem;">Add Your First Line</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const linesHtml = lines.map(line => {
+                const daysSinceEgg = line.eggDate ? getDaysSinceEgg(line) : 0;
+                const stage = stageData[line.currentStage];
+                
+                // Handle adult lines and lines without egg dates
+                let genotypeCountdown, cupChangeStatus, timelineHtml = '';
+                
+                if (line.currentStage === 'adult') {
+                    genotypeCountdown = '<span class="monarch-logo orange-butterfly">🦋</span> Adult - Ready for next generation';
+                    cupChangeStatus = '✅ Adult stage - No cup changes needed';
+                } else if (!line.eggDate) {
+                    genotypeCountdown = '📅 Set egg date for tracking';
+                    cupChangeStatus = '📅 Set egg date for scheduling';
+                } else {
+                    // Normal egg date based calculations
+                    const genotypeDay = 19;
+                    const hangPupaeDay = 40; // 5 days after pupation (day 35)
+                    const daysToGenotype = Math.max(0, genotypeDay - daysSinceEgg);
+                    const daysToHangAlert = Math.max(0, hangPupaeDay - daysSinceEgg);
+                    
+                    // Hang Pupae Alert takes priority over genotype if in later stages
+                    if (line.currentStage === 'hang-alert' || daysSinceEgg >= hangPupaeDay) {
+                        genotypeCountdown = '🚨 HANG PUPAE ALERT - Check chrysalis carefully!';
+                    } else if (line.currentStage === 'pupal') {
+                        genotypeCountdown = `⚠️ ${daysToHangAlert} days until hang pupae alert`;
+                    } else if (line.currentStage === 'j-ing') {
+                        genotypeCountdown = '🪝 J-ing stage - pupation imminent!';
+                    } else if (line.genotyped) {
+                        genotypeCountdown = `✅ Genotyped (${line.genotypeResult || 'Results recorded'})`;
+                    } else if (line.currentStage === 'fourth') {
+                        genotypeCountdown = '🧬 Ready for genotyping NOW!';
+                    } else if (daysSinceEgg < genotypeDay) {
+                        genotypeCountdown = `⏱️ ${daysToGenotype} days until genotype ready`;
+                    } else if (daysSinceEgg >= genotypeDay) {
+                        genotypeCountdown = '🚨 Genotyping overdue - check stage';
+                    } else {
+                        genotypeCountdown = 'Genotyping not applicable';
+                    }
+                    
+                    // Cup change status - New schedule: diet plate 4 days, then cups every 5 days
+                    const cupChangeDays = [4, 9, 14, 19]; // Diet plate at 4, cups at 9, 14, 19 (genotype)
+                    const nextCupDay = cupChangeDays.find(day => day > daysSinceEgg);
+                    const currentCupDay = cupChangeDays.find(day => day === daysSinceEgg);
+                    
+                    if (currentCupDay) {
+                        const stageNames = {4: 'diet plate', 9: '1st cup change', 14: '2nd cup change', 19: '3rd cup change (genotype ready)'};
+                        cupChangeStatus = `🥤 Cup change needed TODAY (${stageNames[currentCupDay]})`;
+                    } else if (nextCupDay) {
+                        const daysToNext = nextCupDay - daysSinceEgg;
+                        const stageNames = {4: 'diet plate', 9: '1st cup change', 14: '2nd cup change', 19: '3rd cup change (genotype ready)'};
+                        cupChangeStatus = `⏳ Next cup change in ${daysToNext} days (${stageNames[nextCupDay]})`;
+                    } else if (daysSinceEgg > 19) {
+                        cupChangeStatus = '✅ All scheduled cup changes complete';
+                    } else {
+                        cupChangeStatus = '📅 Cup changes scheduled automatically';
+                    }
+                }
+                
+                // Create lifecycle timeline only if egg date exists
+                if (line.eggDate) {
+                    const eggDate = new Date(line.eggDate);
+                    const milestones = [
+                        { name: 'Egg Laid', date: eggDate, stage: 'egg', day: 0 },
+                        { name: 'Hatch (1st Instar)', date: addDays(eggDate, 4), stage: 'first', day: 4 },
+                        { name: '2nd Instar', date: addDays(eggDate, 9), stage: 'second', day: 9 },
+                        { name: '3rd Instar', date: addDays(eggDate, 14), stage: 'third', day: 14 },
+                        { name: '4th Instar (Genotype)', date: addDays(eggDate, 19), stage: 'fourth', day: 19 },
+                        { name: '5th Instar', date: addDays(eggDate, 24), stage: 'fifth', day: 24 },
+                        { name: 'Finishing Cup', date: addDays(eggDate, 29), stage: 'finishing', day: 29 },
+                        { name: 'J-ing Stage', date: addDays(eggDate, 34), stage: 'j-ing', day: 34 },
+                        { name: 'Pupation', date: addDays(eggDate, 35), stage: 'pupal', day: 35 },
+                        { name: 'Hang Pupae Alert', date: addDays(eggDate, 40), stage: 'hang-alert', day: 40 },
+                        { name: 'Adult Emergence', date: addDays(eggDate, 54), stage: 'adult', day: 54 }
+                    ];
+                    
+                    timelineHtml = '<div style="margin-top: 1rem;"><strong>Lifecycle Timeline:</strong><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">';
+                    
+                    milestones.forEach(milestone => {
+                        const isPast = daysSinceEgg >= milestone.day;
+                        const isCurrent = line.currentStage === milestone.stage;
+                        const statusColor = isPast ? '#059669' : isCurrent ? '#F59E0B' : '#9CA3AF';
+                        const statusIcon = isPast ? '✅' : isCurrent ? '🔄' : '⏳';
+                        
+                        timelineHtml += `
+                            <div style="background: ${isPast ? '#D1FAE5' : isCurrent ? '#FEF3C7' : '#F3F4F6'}; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.8rem;">
+                                <div style="color: ${statusColor}; font-weight: bold;">${statusIcon} Day ${milestone.day}</div>
+                                <div style="color: var(--monarch-black);">${milestone.name}</div>
+                                <div style="color: var(--text-slate); font-size: 0.7rem;">${milestone.date.toLocaleDateString()}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    timelineHtml += '</div></div>';
+                } else if (line.currentStage === 'adult') {
+                    timelineHtml = `
+                        <div style="margin-top: 1rem; background: var(--monarch-cream); padding: 1rem; border-radius: 8px; text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;"><span class="monarch-logo">🦋</span></div>
+                            <div style="font-weight: bold; color: var(--monarch-orange);">Adult Monarch Ready</div>
+                            <div style="color: var(--text-slate); font-size: 0.9rem; margin-top: 0.5rem;">
+                                This line has reached adult stage. Ready for next generation egg laying.
+                            </div>
+                            <button class="btn btn-primary" onclick="startNextGeneration('${line.id}')" style="margin-top: 1rem; font-size: 0.8rem;">
+                                🥚 Start Next Generation
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="line-card">
+                        <div class="line-header">
+                            <div>
+                                <div class="line-name">${line.name}</div>
+                                <div class="line-id">#${line.id}${line.status === 'completed' ? ' - COMPLETED' : line.status === 'on_hold' ? ' - ON HOLD' : ''}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="status-badge status-${line.currentStage}">${stage.name}</div>
+                                <button class="btn btn-secondary" onclick="openUpdateModal('${line.id}')" style="margin-top: 0.5rem; font-size: 0.7rem;">Update Line</button>
+                            </div>
+                        </div>
+                        <div class="stage-info">
+                            <div class="info-item">
+                                <div class="info-label">Individual Count</div>
+                                <div class="info-value">${line.individualCount}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Days Since Egg</div>
+                                <div class="info-value">${line.eggDate ? daysSinceEgg + ' days' : 'No egg date'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Egg Date${line.eggBatches && line.eggBatches.length > 1 ? 's' : ''}</div>
+                                <div class="info-value">
+                                    ${(() => {
+                                        if (!line.eggDate && (!line.eggBatches || line.eggBatches.length === 0)) {
+                                            return 'Not set';
+                                        }
+                                        
+                                        if (line.eggBatches && line.eggBatches.length > 1) {
+                                            // Multiple batches - show all dates with timeline reference indicator
+                                            return line.eggBatches.map((batch, index) => {
+                                                const isTimeline = (line.timelineReference === 'first' && index === 0) || 
+                                                                  (line.timelineReference === `batch_${batch.batch}`);
+                                                const marker = isTimeline ? ' 📅' : '';
+                                                return `Batch ${batch.batch}: ${batch.formattedDate}${marker}`;
+                                            }).join('<br>') + '<br><small style="color: var(--text-slate);">📅 = Timeline reference</small>';
+                                        } else if (line.eggBatches && line.eggBatches.length === 1) {
+                                            // Single batch from new format
+                                            return line.eggBatches[0].formattedDate;
+                                        } else {
+                                            // Legacy single date
+                                            return new Date(line.eggDate).toLocaleDateString();
+                                        }
+                                    })()}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Condition</div>
+                                <div class="info-value">${line.condition === 'normal' ? '✅ Normal' : line.condition === 'delay' ? '⚠️ Delayed' : '🚨 Infection'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Line Status</div>
+                                <div class="info-value">${line.status === 'completed' ? '✅ Completed' : line.status === 'on_hold' ? '⏸️ On Hold' : '🟢 Active'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Genotype Status</div>
+                                <div class="info-value">${genotypeCountdown}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Cup Change Status</div>
+                                <div class="info-value">${cupChangeStatus}</div>
+                            </div>
+                        </div>
+                        ${(() => {
+                            // Parent Data Display  
+                            if (line.parentHistory && line.parentHistory.length > 0) {
+                                const latestParent = line.parentHistory[line.parentHistory.length - 1];
+                                return `
+                                    <div style="margin-top: 1rem; background: #FEF3C7; padding: 1rem; border-radius: 8px; border-left: 4px solid #F59E0B;">
+                                        <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.5rem;">
+                                            <div style="font-weight: bold; color: #D97706;">👨‍👩‍👧‍👦 Parent Information</div>
+                                            <div style="font-size: 0.8rem; color: var(--text-slate);">${line.parentHistory.length} breeding records</div>
+                                        </div>
+                                        <div style="background: white; padding: 0.75rem; border-radius: 6px; border: 1px solid #FDE68A;">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; font-size: 0.85rem;">
+                                                <div><strong>Pairs:</strong> ${latestParent.pairs}</div>
+                                                <div><strong>Date:</strong> ${latestParent.date}</div>
+                                                <div><strong>By:</strong> ${latestParent.recordedBy}</div>
+                                            </div>
+                                            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-slate);">
+                                                <strong>Parents:</strong> ${latestParent.maleId} × ${latestParent.femaleId}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                            return '';
+                        })()}
+                        ${(() => {
+                            // Mating Data Display
+                            if (!line.matingData || line.matingData.length === 0) {
+                                return '';
+                            }
+                            
+                            const recentMatings = line.matingData.slice(-3).reverse(); // Show last 3 matings
+                            
+                            return `
+                                <div style="margin-top: 1rem; background: var(--monarch-cream); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--monarch-orange);">
+                                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.5rem;">
+                                        <div style="font-weight: bold; color: var(--monarch-orange);">🦋 Mating Records</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-slate);">${line.matingData.length} total records</div>
+                                    </div>
+                                    ${recentMatings.map(mating => `
+                                        <div style="background: white; padding: 0.75rem; margin: 0.5rem 0; border-radius: 6px; border: 1px solid var(--border-soft);">
+                                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem; font-size: 0.85rem;">
+                                                <div><strong>Date:</strong> ${mating.date}</div>
+                                                <div><strong>Pairs:</strong> ${mating.pairs}</div>
+                                                <div><strong>Status:</strong> ${mating.status}</div>
+                                                <div><strong>By:</strong> ${mating.recordedBy}</div>
+                                            </div>
+                                            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-slate);">
+                                                <strong>Parents:</strong> ${mating.maleId} × ${mating.femaleId}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        })()}
+                        ${timelineHtml}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = linesHtml;
+        }
+
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function renderOverviewTable() {
+            const container = document.getElementById('overviewContainer');
+            
+            if (lines.length === 0) {
+                container.innerHTML = '<p>No lines to display. Add your first line to see the overview table.</p>';
+                return;
+            }
+            
+            const tableRows = lines.map(line => {
+                // Get mating info summary
+                const matingInfo = line.matingData && line.matingData.length > 0 
+                    ? `${line.matingData.length} records`
+                    : 'No mating data';
+                
+                return `
+                <tr style="border-bottom: 1px solid var(--border-soft);">
+                    <td style="padding: 1rem; font-weight: 600;">${line.id}</td>
+                    <td style="padding: 1rem; font-weight: 600;">${line.name}</td>
+                    <td style="padding: 1rem;">${stageData[line.currentStage].name}</td>
+                    <td style="padding: 1rem;">${line.individualCount}</td>
+                    <td style="padding: 1rem;">${getDaysSinceEgg(line)} days</td>
+                    <td style="padding: 1rem;">${line.condition === 'normal' ? '✅ Normal' : line.condition === 'delay' ? '⚠️ Delayed' : '🚨 Infection'}</td>
+                    <td style="padding: 1rem;">${line.status || 'Active'}</td>
+                    <td style="padding: 1rem; font-size: 0.9rem;">${matingInfo}</td>
+                </tr>
+            `;
+            }).join('');
+            
+            container.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary); margin: 0;">📊 Line Overview Summary</h3>
+                    <p style="color: var(--text-slate); margin: 0.5rem 0;">Complete overview of all active breeding lines</p>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; background: var(--bg-white); border-radius: 12px; overflow: hidden; border: 2px solid var(--monarch-orange);">
+                    <thead style="background: var(--monarch-orange); color: white;">
+                        <tr>
+                            <th style="padding: 1rem; text-align: left;">Line ID</th>
+                            <th style="padding: 1rem; text-align: left;">Line Name</th>
+                            <th style="padding: 1rem; text-align: left;">Current Stage</th>
+                            <th style="padding: 1rem; text-align: left;">Individual Count</th>
+                            <th style="padding: 1rem; text-align: left;">Age (Days)</th>
+                            <th style="padding: 1rem; text-align: left;">Health Condition</th>
+                            <th style="padding: 1rem; text-align: left;">Status</th>
+                            <th style="padding: 1rem; text-align: left;">Mating Records</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            `;
+        }
+
+        function renderDailyTasks() {
+            document.getElementById('todayDate').textContent = new Date().toLocaleDateString();
+            const container = document.getElementById('dailyTasksContainer');
+            
+            const tasks = {
+                hatching: [],      // Day 4: Eggs ready to hatch
+                dietPlates: [],    // Day 4: Move hatched larvae to diet plate
+                cupChanges: [],    // Days 9, 14, 19: Cup changes every 5 days
+                genotyping: [],    // Day 19: 4th instar genotyping
+                finishingCup: [],  // Daily finishing cup care for larvae still feeding
+                jingPupation: [],  // J-ing and pupation - no tasks (don't touch)
+                hangAlert: [],     // Day 40: Hang pupae alert
+                urgent: []         // Infections, delays, problems
+            };
+            
+            lines.forEach(line => {
+                // Skip adult lines without next generation started
+                if (line.currentStage === 'adult' && !line.eggDate) {
+                    return; // Adult lines don't appear in daily tasks until next generation
+                }
+                
+                // Skip lines without egg dates (except adults which are handled above)
+                if (!line.eggDate) {
+                    return;
+                }
+                
+                const daysSinceEgg = getDaysSinceEgg(line);
+                const today = new Date();
+                const eggDate = new Date(line.eggDate);
+                
+                // 🥚 HATCHING ALERTS - Day 4 from egg date
+                if (daysSinceEgg === 4 && line.currentStage === 'egg') {
+                    tasks.hatching.push(`${line.name} (#${line.id}) - Eggs should be hatching TODAY (Day 4)`);
+                }
+                
+                // 🍽️ DIET PLATE - Day 4: Move newly hatched larvae to diet plate
+                if (daysSinceEgg === 4 && line.currentStage === 'egg') {
+                    tasks.dietPlates.push(`${line.name} (#${line.id}) - Move hatched larvae to diet plate (Day 4)`);
+                }
+                
+                // 🥤 CUP CHANGES - Days 9, 14, 19: Every 5 days after diet plate
+                const cupChangeDays = [9, 14, 19];
+                if (cupChangeDays.includes(daysSinceEgg)) {
+                    const stageNames = {9: '1st cup change (2nd instar)', 14: '2nd cup change (3rd instar)', 19: '3rd cup change (4th instar) + Genotyping'};
+                    tasks.cupChanges.push(`${line.name} (#${line.id}) - ${stageNames[daysSinceEgg]} (Day ${daysSinceEgg})`);
+                }
+                
+                // 🧬 GENOTYPING - Day 19: 4th instar genotyping
+                if (daysSinceEgg === 19 && line.currentStage === 'fourth' && !line.genotyped) {
+                    tasks.genotyping.push(`${line.name} (#${line.id}) - Ready for genotyping (Day 19 - 4th instar)`);
+                }
+                
+                // 🥤 POST-GENOTYPE DAILY CUP CHANGES - After genotyping until finishing cup
+                if (line.genotyped && daysSinceEgg > 19 && daysSinceEgg < 29) {
+                    tasks.cupChanges.push(`${line.name} (#${line.id}) - Daily cup change (Post-genotype Day ${daysSinceEgg})`);
+                }
+                
+                // 🏠 FINISHING CUP DAILY CARE - Diet changes and cleaning until J-ing
+                if (line.currentStage === 'finishing' && daysSinceEgg >= 29 && daysSinceEgg < 34) {
+                    const finishingDay = daysSinceEgg - 28;
+                    tasks.finishingCup.push(`${line.name} (#${line.id}) - Daily diet change and cleaning (Day ${daysSinceEgg}, Finishing day ${finishingDay})`);
+                }
+                
+                // 🪝 J-ING AND PUPATION - NO TASKS (Don't touch animals)
+                if (line.currentStage === 'j-ing' || (line.currentStage === 'pupal' && daysSinceEgg < 40)) {
+                    tasks.jingPupation.push(`${line.name} (#${line.id}) - ${line.currentStage === 'j-ing' ? 'J-ing stage' : 'Pupation'} - DO NOT DISTURB (Day ${daysSinceEgg})`);
+                }
+                
+                // 🚨 HANG PUPAE ALERT - Day 40: 5 days after pupation
+                if (daysSinceEgg >= 40 && (line.currentStage === 'pupal' || line.currentStage === 'hang-alert')) {
+                    const daysInPupal = daysSinceEgg - 35;
+                    tasks.hangAlert.push(`${line.name} (#${line.id}) - HANG PUPAE ALERT - Check chrysalis carefully! (Day ${daysSinceEgg}, ${daysInPupal} days in pupal)`);
+                }
+                
+                // 🚨 URGENT ATTENTION - Infections, delays, problems
+                if (line.condition === 'infection') {
+                    tasks.urgent.push(`${line.name} (#${line.id}) - INFECTION detected - immediate attention required`);
+                } else if (line.condition === 'delay') {
+                    tasks.urgent.push(`${line.name} (#${line.id}) - Developmental delay - check progress`);
+                } else if (daysSinceEgg > 25 && line.currentStage === 'egg') {
+                    tasks.urgent.push(`${line.name} (#${line.id}) - Eggs severely overdue (Day ${daysSinceEgg}) - check viability`);
+                } else if (daysSinceEgg > 25 && !line.genotyped && line.currentStage === 'fourth') {
+                    tasks.urgent.push(`${line.name} (#${line.id}) - Genotyping overdue (Day ${daysSinceEgg})`);
+                }
+            });
+            
+            let tasksHTML = '';
+            
+            // Create comprehensive task sections in order of priority
+            if (tasks.urgent.length > 0) {
+                tasksHTML += createTaskSection('🚨 URGENT ATTENTION REQUIRED', tasks.urgent, 'urgent');
+            }
+            if (tasks.hangAlert.length > 0) {
+                tasksHTML += createTaskSection('🚨 HANG PUPAE ALERT (Day 40+)', tasks.hangAlert, 'hang');
+            }
+            if (tasks.hatching.length > 0) {
+                tasksHTML += createTaskSection('🥚 HATCHING TODAY (Day 4)', tasks.hatching, 'hatching');
+            }
+            if (tasks.dietPlates.length > 0) {
+                tasksHTML += createTaskSection('🍽️ MOVE TO DIET PLATE (Day 4)', tasks.dietPlates, 'diet');
+            }
+            if (tasks.cupChanges.length > 0) {
+                tasksHTML += createTaskSection('🥤 CUP CHANGES (Scheduled + Daily Post-Genotype)', tasks.cupChanges, 'cup-change');
+            }
+            if (tasks.genotyping.length > 0) {
+                tasksHTML += createTaskSection('🧬 GENOTYPING READY (Day 19)', tasks.genotyping, 'genotype');
+            }
+            if (tasks.finishingCup.length > 0) {
+                tasksHTML += createTaskSection('🏠 FINISHING CUP - Daily Diet & Cleaning', tasks.finishingCup, 'finishing');
+            }
+            if (tasks.jingPupation.length > 0) {
+                tasksHTML += createTaskSection('🪝 J-ING & PUPATION - Do Not Disturb', tasks.jingPupation, 'no-touch');
+            }
+            
+            if (tasksHTML === '') {
+                tasksHTML = `
+                    <div class="task-list">
+                        <div class="task-header routine">✅ All Tasks Complete</div>
+                        <div class="task-item">
+                            <div class="task-line">No tasks scheduled for today</div>
+                            <div style="color: var(--text-slate); font-size: 0.9rem; margin-top: 0.5rem;">
+                                All lines are on schedule. Check back tomorrow or add new lines.
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add refresh button at the top
+            const refreshButton = `
+                <div style="text-align: right; margin-bottom: 1rem;">
+                    <button class="btn btn-secondary" onclick="renderDailyTasks()" style="font-size: 0.9rem;">
+                        🔄 Refresh Tasks
+                    </button>
+                </div>
+            `;
+            
+            container.innerHTML = refreshButton + tasksHTML;
+        }
+
+        function createTaskSection(title, taskList, colorClass) {
+            const taskItems = taskList.map(task => `
+                <div class="task-item">
+                    <div class="task-line">${task}</div>
+                </div>
+            `).join('');
+            
+            return `
+                <div class="task-list">
+                    <div class="task-header ${colorClass}">${title} (${taskList.length})</div>
+                    ${taskItems}
+                </div>
+            `;
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+
+            // Initialize egg batch functionality
+            if (typeof eggBatchCounter === 'undefined') {
+                window.eggBatchCounter = 1;
+            }
+
+            // Check for existing login
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').classList.add('show');
+                updateUserDisplay();
+                renderLines();
+                return;
+            }
+
+            // Setup login form
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('userEmail').value.trim();
+                const password = document.getElementById('userPassword').value;
+                const name = document.getElementById('userName').value.trim();
+                const role = document.getElementById('userRole').value;
+                
+                document.getElementById('loginError').style.display = 'none';
+                
+                if (!email || !password || !name) {
+                    showError('Please fill in all required fields');
+                    return;
+                }
+                
+                if (!email.endsWith('@tamu.edu')) {
+                    showError('Must use @tamu.edu email');
+                    return;
+                }
+                
+                const storedPassword = localStorage.getItem('labPassword');
+                
+                if (!storedPassword) {
+                    localStorage.setItem('labPassword', password);
+                } else if (password !== storedPassword) {
+                    showError('Wrong password');
+                    return;
+                }
+                
+                currentUser = {
+                    email: email,
+                    name: name,
+                    role: role || 'Lab Member',
+                    initials: getInitials(name)
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('mainContainer').classList.add('show');
+                
+                updateUserDisplay();
+                renderLines();
+            });
+
+            // Setup add line form
+            document.getElementById('lineForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const alertEmails = getEmailInputs();
+                const currentStage = document.getElementById('currentStage').value;
+                
+                // Get all egg dates and selected reference date
+                const allEggDates = getAllEggDates();
+                const selectedEggDate = getSelectedEggDate();
+                
+                // Handle egg date based on stage
+                let eggDate = null;
+                let eggBatches = [];
+                
+                if (currentStage === 'adult' && allEggDates.length === 0) {
+                    // Adult without egg dates - set to null, ready for next generation
+                    eggDate = null;
+                    eggBatches = [];
+                } else if (allEggDates.length > 0) {
+                    eggDate = selectedEggDate; // Use selected reference date for lifecycle timing
+                    eggBatches = allEggDates;  // Store all batch dates
+                } else {
+                    // Non-egg stage without dates - require estimation
+                    alert('Please provide at least one egg date or use Auto-Estimate for proper lifecycle tracking.');
+                    return;
+                }
+                
+                const newLine = {
+                    id: 'MER-' + getNextLineNumber(),
+                    name: document.getElementById('lineName').value,
+                    currentStage: currentStage,
+                    condition: document.getElementById('condition').value,
+                    individualCount: parseInt(document.getElementById('individualCount').value),
+                    eggDate: eggDate,
+                    eggBatches: eggBatches, // Store multiple batch dates
+                    timelineReference: document.getElementById('timelineReference')?.value || 'first',
+                    alertEmails: alertEmails,
+                    dateCreated: new Date().toISOString(),
+                    createdBy: currentUser.name,
+                    lastUpdatedBy: currentUser.name,
+                    notes: [],
+                    updateHistory: [],
+                    // Adult stage specific fields
+                    isAdult: currentStage === 'adult',
+                    readyForNextGeneration: currentStage === 'adult'
+                };
+                
+                lines.push(newLine);
+                saveData();
+                renderLines();
+                closeModal('lineModal');
+                document.getElementById('lineForm').reset();
+                
+                // Reset to default state
+                document.getElementById('currentStage').value = 'egg';
+                toggleEggDateRequirement();
+                
+                // Reset email inputs to default
+                document.getElementById('emailInputs').innerHTML = `
+                    <div class="email-input-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <input type="email" class="form-input" placeholder="researcher@tamu.edu" style="flex: 1;">
+                        <button type="button" class="btn btn-secondary" onclick="addEmailInput()" style="padding: 0.5rem;">+</button>
+                    </div>
+                `;
+                
+                logActivity('create', `Created new line: ${newLine.name} (${currentStage} stage)`, newLine.id);
+                
+                // Send creation alert if emails provided
+                if (alertEmails.length > 0) {
+                    sendEmailAlert(
+                        `🦋 NEW MONARCH LINE CREATED - ${newLine.name}`,
+                        `A new monarch line "${newLine.name}" has been created at ${currentStage} stage and is being tracked in the Merlin Lab system.`,
+                        alertEmails
+                    );
+                }
+                
+                // Special handling for adult lines
+                if (currentStage === 'adult') {
+                    setTimeout(() => {
+                        alert(`✅ Adult line created successfully!\n\nLine "${newLine.name}" is ready for next generation egg laying. When new eggs are laid, you can:\n1. Update this line with new egg date\n2. Or create a new line for the next generation\n\nAdult lines don't appear in daily tasks until next generation begins.`);
+                    }, 500);
+                }
+            });
+
+            // Setup update line form
+            document.getElementById('updateForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const lineId = document.getElementById('updateModal').dataset.lineId;
+                const line = lines.find(l => l.id === lineId);
+                if (!line) return;
+                
+                const action = document.getElementById('updateAction').value;
+                const notes = document.getElementById('updateNotes').value;
+                
+                switch (action) {
+                    case 'stage':
+                        const newStage = document.getElementById('newStage').value;
+                        line.currentStage = newStage;
+                        
+                        // Handle parent mating data when changing to parents stage
+                        if (newStage === 'parents') {
+                            if (!line.parentHistory) line.parentHistory = [];
+                            
+                            const parentData = {
+                                id: generateId(),
+                                date: document.getElementById('matingDateParent').value || new Date().toISOString().split('T')[0],
+                                pairs: parseInt(document.getElementById('breedingPairs').value) || 1,
+                                maleId: document.getElementById('maleParentId').value || '',
+                                femaleId: document.getElementById('femaleParentId').value || '',
+                                recordedBy: currentUser.name,
+                                timestamp: new Date().toISOString()
+                            };
+                            
+                            line.parentHistory.push(parentData);
+                            
+                            // Save to complete history file
+                            saveCompleteLineHistory(line, 'Parents stage - mating data recorded', parentData);
+                        }
+                        
+                        break;
+                    case 'diet':
+                        line.dietType = document.getElementById('dietType').value;
+                        line.lastDietChange = document.getElementById('lastDietDate').value;
+                        line.nextDietDate = document.getElementById('nextDietDate').value;
+                        
+                        saveCompleteLineHistory(line, 'Diet updated', {
+                            dietType: line.dietType,
+                            lastDietChange: line.lastDietChange,
+                            nextDietDate: line.nextDietDate
+                        });
+                        break;
+                    case 'condition':
+                        line.condition = document.getElementById('newCondition').value;
+                        
+                        saveCompleteLineHistory(line, 'Condition updated', {
+                            condition: line.condition,
+                            conditionChangeDate: document.getElementById('conditionChangeDate').value
+                        });
+                        break;
+                    case 'count':
+                        const oldCount = line.individualCount;
+                        line.individualCount = parseInt(document.getElementById('newCount').value);
+                        
+                        saveCompleteLineHistory(line, 'Individual count updated', {
+                            oldCount: oldCount,
+                            newCount: line.individualCount,
+                            changeReason: document.getElementById('countChangeReason') ? document.getElementById('countChangeReason').value : ''
+                        });
+                        break;
+                    case 'jing_count':
+                        const jingCount = parseInt(document.getElementById('jingCount').value) || 0;
+                        const stillFeeding = parseInt(document.getElementById('stillFeeding').value) || 0;
+                        
+                        // Record J-ing transition data
+                        if (!line.jingHistory) line.jingHistory = [];
+                        line.jingHistory.push({
+                            date: new Date().toISOString().split('T')[0],
+                            jingCount: jingCount,
+                            stillFeeding: stillFeeding,
+                            recordedBy: currentUser.name,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        // Update individual count to reflect remaining feeding animals
+                        line.individualCount = stillFeeding;
+                        
+                        saveCompleteLineHistory(line, 'J-ing count recorded', {
+                            jingCount: jingCount,
+                            stillFeeding: stillFeeding,
+                            previousCount: line.individualCount + jingCount
+                        });
+                        break;
+                    case 'egg_date':
+                        const newEggDate = document.getElementById('newEggDate').value;
+                        const reason = document.getElementById('eggDateReason')?.value || 'additional_laying';
+                        const newTimelineRef = document.getElementById('newTimelineReference')?.value;
+                        
+                        // Initialize eggBatches if it doesn't exist
+                        if (!line.eggBatches) {
+                            line.eggBatches = line.eggDate ? [
+                                {batch: 1, date: line.eggDate, formattedDate: new Date(line.eggDate).toLocaleDateString()}
+                            ] : [];
+                        }
+                        
+                        // Add new batch
+                        const newBatchNumber = (line.eggBatches.length || 0) + 1;
+                        const newBatch = {
+                            batch: newBatchNumber,
+                            date: newEggDate,
+                            formattedDate: new Date(newEggDate).toLocaleDateString()
+                        };
+                        line.eggBatches.push(newBatch);
+                        
+                        // Update timeline reference
+                        if (newTimelineRef === 'new_batch') {
+                            line.timelineReference = `batch_${newBatchNumber}`;
+                            line.eggDate = newEggDate; // Update main eggDate for timeline calculations
+                        } else if (newTimelineRef) {
+                            line.timelineReference = newTimelineRef;
+                            // Update main eggDate based on selected reference
+                            if (newTimelineRef === 'first') {
+                                line.eggDate = line.eggBatches[0].date;
+                            } else {
+                                const refBatchNum = parseInt(newTimelineRef.split('_')[1]);
+                                const refBatch = line.eggBatches.find(b => b.batch === refBatchNum);
+                                if (refBatch) {
+                                    line.eggDate = refBatch.date;
+                                }
+                            }
+                        }
+                        
+                        // Store reason for audit trail
+                        if (!line.eggBatchHistory) line.eggBatchHistory = [];
+                        line.eggBatchHistory.push({
+                            date: new Date().toISOString(),
+                            action: 'batch_added',
+                            batchNumber: newBatchNumber,
+                            eggDate: newEggDate,
+                            reason: reason,
+                            updatedBy: currentUser.name
+                        });
+                        
+                        logActivity('update', `New egg batch added to line ${line.name} - Batch ${newBatchNumber}: ${new Date(newEggDate).toLocaleDateString()}`, lineId);
+                        break;
+                    case 'genotype':
+                        line.genotypeResult = document.getElementById('genotypeResult').value;
+                        line.genotypeDate = document.getElementById('genotypeDate').value;
+                        line.genotyped = true;
+                        if (document.getElementById('genotypeNotes')) {
+                            line.genotypeNotes = document.getElementById('genotypeNotes').value;
+                        }
+                        break;
+                    case 'status':
+                        const newStatus = document.getElementById('newStatus').value;
+                        const statusReason = document.getElementById('statusReason').value;
+                        
+                        // Handle termination - remove the line completely
+                        if (newStatus === 'terminated') {
+                            if (!statusReason || statusReason.trim().length < 10) {
+                                alert('⚠️ TERMINATION REQUIRES DETAILED REASON\n\nPlease provide a detailed explanation (at least 10 characters) for why this line is being terminated.');
+                                return; // Stop the update
+                            }
+                            
+                            const confirmTermination = confirm(
+                                `🗑️ CONFIRM LINE REMOVAL\n\n` +
+                                `Line: ${line.name} (#${line.id})\n` +
+                                `Reason: ${statusReason}\n\n` +
+                                `This will PERMANENTLY REMOVE the line from the system.\n` +
+                                `All data for this line will be deleted and cannot be recovered.\n\n` +
+                                `Are you absolutely sure you want to remove this line?`
+                            );
+                            
+                            if (!confirmTermination) {
+                                return; // User canceled termination
+                            }
+                            
+                            // Log termination activity before removing
+                            logActivity('terminate', `Line ${line.name} (#${line.id}) terminated and removed: ${statusReason}`, lineId);
+                            
+                            // Remove the line from the lines array
+                            const lineIndex = lines.findIndex(l => l.id === lineId);
+                            if (lineIndex > -1) {
+                                lines.splice(lineIndex, 1);
+                            }
+                            
+                            // Save data and refresh display
+                            saveData();
+                            renderLines();
+                            closeModal('updateModal');
+                            document.getElementById('updateForm').reset();
+                            document.getElementById('updateFields').innerHTML = '';
+                            
+                            // Show confirmation message
+                            alert(`✅ Line ${line.name} (#${line.id}) has been permanently removed from the system.`);
+                            return; // Exit early since line is removed
+                        }
+                        
+                        // Handle other status changes (active, completed, on_hold)
+                        line.status = newStatus;
+                        line.statusReason = statusReason;
+                        line.statusChangeDate = new Date().toISOString();
+                        break;
+                    case 'email':
+                        // Get email inputs from update modal
+                        const emailInputs = document.querySelectorAll('#emailInputsUpdate input[type="email"]');
+                        line.alertEmails = Array.from(emailInputs)
+                            .map(input => input.value.trim())
+                            .filter(email => email && email.includes('@'));
+                        break;
+                    case 'mating':
+                        // Initialize mating data array if it doesn't exist
+                        if (!line.matingData) line.matingData = [];
+                        
+                        const matingRecord = {
+                            id: generateId(),
+                            date: document.getElementById('matingDate').value,
+                            pairs: parseInt(document.getElementById('matingPairs').value),
+                            maleId: document.getElementById('maleId').value,
+                            femaleId: document.getElementById('femaleId').value,
+                            status: document.getElementById('matingStatus').value,
+                            recordedBy: document.getElementById('updaterName').value || currentUser.name,
+                            timestamp: new Date().toISOString(),
+                            notes: notes || ''
+                        };
+                        
+                        line.matingData.push(matingRecord);
+                        
+                        // Save to downloadable mating history file
+                        saveMatingRecord(matingRecord, line);
+                        
+                        // Send alert if email notifications are enabled
+                        if (line.alertEmails && line.alertEmails.length > 0) {
+                            sendEmailAlert(
+                                `🦋 MATING RECORDED - ${line.name}`,
+                                `New mating record: ${matingRecord.pairs} pairs (${matingRecord.maleId} × ${matingRecord.femaleId}) on ${matingRecord.date}`,
+                                line.alertEmails
+                            );
+                        }
+                        break;
+                    case 'note':
+                        if (!line.notes) line.notes = [];
+                        line.notes.push({
+                            date: new Date().toISOString(),
+                            type: document.getElementById('noteType') ? document.getElementById('noteType').value : 'observation',
+                            note: document.getElementById('researchNote').value,
+                            author: currentUser.name
+                        });
+                        break;
+                }
+                
+                if (notes) {
+                    if (!line.updateHistory) line.updateHistory = [];
+                    line.updateHistory.push({
+                        date: new Date().toISOString(),
+                        action: action,
+                        notes: notes,
+                        updatedBy: currentUser.name
+                    });
+                }
+                
+                line.lastUpdatedBy = currentUser.name;
+                line.lastUpdated = new Date().toISOString();
+                
+                saveData();
+                renderLines();
+                closeModal('updateModal');
+                document.getElementById('updateForm').reset();
+                document.getElementById('updateFields').innerHTML = '';
+                
+                // Log the update activity
+                logActivity('update', `${action} updated for line ${line.name}`, lineId);
+                
+                // Send alerts for important updates
+                if (line.alertEmails && line.alertEmails.length > 0) {
+                    if (action === 'genotype' && line.genotypeResult) {
+                        sendEmailAlert(
+                            `🧬 GENOTYPE RESULTS - ${line.name}`,
+                            `Genotype results for line ${line.name}: ${line.genotypeResult}`,
+                            line.alertEmails
+                        );
+                    } else if (action === 'condition' && line.condition === 'infection') {
+                        sendEmailAlert(
+                            `🚨 INFECTION ALERT - ${line.name}`,
+                            `ATTENTION: Infection detected in line ${line.name}. Immediate action may be required.`,
+                            line.alertEmails
+                        );
+                    }
+                }
+            });
+
+            // Setup password form
+            document.getElementById('passwordForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const current = document.getElementById('currentPassword').value;
+                const newPass = document.getElementById('newPassword').value;
+                const confirm = document.getElementById('confirmPassword').value;
+                const stored = localStorage.getItem('labPassword');
+                
+                const errorDiv = document.getElementById('passwordError');
+                errorDiv.style.display = 'none';
+                
+                if (current !== stored) {
+                    errorDiv.textContent = 'Current password incorrect';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                if (newPass !== confirm) {
+                    errorDiv.textContent = 'Passwords do not match';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                localStorage.setItem('labPassword', newPass);
+                closeModal('passwordModal');
+                document.getElementById('passwordForm').reset();
+            });
+        });
+    </script>
+</body>
+</html>
