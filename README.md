@@ -1,2 +1,3 @@
 # merlinlabhusbandry
-Monarch lab Colony devlopment tracking
+Monarch lab Colony development tracking
+Authorized Merlin lab members only
