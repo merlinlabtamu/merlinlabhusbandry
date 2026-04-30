@@ -1904,19 +1904,36 @@
                     break;
                     
                 case 'email':
-                    fieldsHtml = `
-                        <div class="form-group">
-                            <label class="form-label">Email Alert Recipients</label>
-                            <div id="emailInputsUpdate">
-                                <div class="email-input-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <input type="email" class="form-input" placeholder="researcher@tamu.edu" style="flex: 1;">
-                                    <button type="button" class="btn btn-secondary" onclick="addEmailInputUpdate()" style="padding: 0.5rem;">+</button>
-                                </div>
-                            </div>
-                            <small style="color: var(--text-slate);">Add or remove email recipients for this line's alerts</small>
-                        </div>
-                    `;
-                    break;
+    const currentEmails = line.alertEmails || [];
+    let emailInputsHtml = '';
+    
+    if (currentEmails.length > 0) {
+        emailInputsHtml = currentEmails.map((email, index) => `
+            <div class="email-input-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <input type="email" class="form-input" value="${email}" style="flex: 1;">
+                <button type="button" class="btn btn-danger" onclick="removeEmailInput(this)" style="padding: 0.5rem;">Remove</button>
+            </div>
+        `).join('');
+    } else {
+        emailInputsHtml = `
+            <div class="email-input-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <input type="email" class="form-input" placeholder="researcher@tamu.edu" style="flex: 1;">
+                <button type="button" class="btn btn-secondary" onclick="addEmailInputUpdate()" style="padding: 0.5rem;">+</button>
+            </div>
+        `;
+    }
+    
+    fieldsHtml = `
+        <div class="form-group">
+            <label class="form-label">Email Alert Management</label>
+            <div id="emailContainer">
+                ${emailInputsHtml}
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="addEmailInputUpdate()" style="margin-top: 0.5rem;">Add Another Email</button>
+            <small style="color: var(--text-slate); display: block; margin-top: 0.5rem;">Add or remove email recipients for this line's alerts</small>
+        </div>
+    `;
+    break;
                     
                 case 'note':
                     fieldsHtml = `
